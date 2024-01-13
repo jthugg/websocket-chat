@@ -1,0 +1,33 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/chat
+    username: root
+    password: local
+
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath*:sql/local/schema.sql
+      data-locations: classpath*:sql/local/data.sql
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    properties:
+      hibernate:
+        format_sql: true
+
+  output:
+    ansi:
+      enabled: always
+
+logging:
+  level:
+    sql: trace

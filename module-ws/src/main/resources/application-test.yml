@@ -1,0 +1,33 @@
+server:
+  port: 9091
+
+spring:
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath*:sql/test/schema.sql
+      data-locations: classpath*:sql/test/data.sql
+
+  r2dbc:
+    url: r2dbc:h2:mem:///test
+    username: test
+    password:
+
+  data:
+    r2dbc:
+      repositories:
+        enabled: true
+
+  output:
+    ansi:
+      enabled: always
+
+h2:
+  console:
+    port: 3309
+
+logging:
+  level:
+    org:
+      springframework:
+        r2dbc: trace

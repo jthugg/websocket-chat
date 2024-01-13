@@ -1,0 +1,20 @@
+server:
+  port: 8080
+
+spring:
+  jackson:
+    time-zone: UTC
+
+  profiles:
+    active: local
+    group:
+      test:
+        - test
+      local:
+        - local
+      prod:
+        - prod
+
+  jpa:
+    open-in-view: false
+

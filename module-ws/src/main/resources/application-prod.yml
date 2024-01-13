@@ -1,0 +1,13 @@
+server:
+  port: 8081
+
+spring:
+  r2dbc:
+    url: ${RDB_URL}
+    username: ${RDB_USERNAME}
+    password: ${RDB_PASSWORD}
+
+  data:
+    r2dbc:
+      repositories:
+        enabled: true

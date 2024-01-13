@@ -1,0 +1,22 @@
+dependencies {
+    // RDB Access
+    implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
+    implementation 'com.h2database:h2'// H2 DB Console Driver
+    implementation 'io.r2dbc:r2dbc-h2'// H2 DB R2DBC Driver
+    implementation "com.github.jasync-sql:jasync-r2dbc-mysql:2.2.0"// MySQL DB Driver
+
+    // NoSQL Access
+//    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'// MongoDB Reactive
+
+    // Reactive Programming
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+    // Tests
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'io.projectreactor:reactor-test'
+
+    // Utils
+    implementation 'com.github.f4b6a3:tsid-creator:5.2.6'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+}
