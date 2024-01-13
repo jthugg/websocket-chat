@@ -1,0 +1,5 @@
+spring:
+  data:
+    mongodb:
+      uri: ${QUERY_DB_URI}
+      database: ${QUERY_DB_DATABASE}

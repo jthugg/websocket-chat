@@ -1,0 +1,14 @@
+spring:
+
+  datasource:
+    driver-class-name: ${COMMAND_DB_DRIVER_CLASS_NAME}
+    url: ${COMMAND_DB_URI}
+    username: ${COMMAND_DB_USERNAME}
+    password: ${COMMAND_DB_PASSWORD}
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
