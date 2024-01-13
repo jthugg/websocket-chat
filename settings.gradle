@@ -1,0 +1,8 @@
+rootProject.name = 'chat'
+include 'module-command-db'
+include 'module-query-db'
+include 'module-auth-token'
+include 'module-rest'
+include 'module-websocket'
+include 'module-data-sync'
+
