@@ -1,0 +1,26 @@
+server:
+  port: 10001
+
+spring:
+  profiles:
+    include:
+      - command-db
+      - query-db
+
+  kafka:
+    consumer:
+      bootstrap-servers: ${EVENT_BROKER_BOOTSTRAP_SERVER}
+      group-id: ${EVENT_BROKER_GROUP_ID}
+
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+        highlight_sql: true
+        use_sql_comments: true
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.type.descriptor.sql: trace
+    org.springframework.data.mongodb.core.MongoTemplate: trace
