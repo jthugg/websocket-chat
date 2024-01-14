@@ -41,6 +41,7 @@ public class SimpleTokenService implements TokenService {
                         .withExpiresAt(now.plusSeconds(tokenProperties.getAccessTokenTTL()))
                         .sign(tokenProperties.getAlgorithm()),
                 JWT.create()
+                        .withClaim(tokenProperties.getUsernameKey(), username)
                         .withExpiresAt(now.plusSeconds(tokenProperties.getRefreshTokenTTL()))
                         .sign(tokenProperties.getAlgorithm())
         );
