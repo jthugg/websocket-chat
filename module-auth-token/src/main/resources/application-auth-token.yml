@@ -1,0 +1,11 @@
+spring:
+  data:
+    redis:
+      host: ${TOKEN_STORAGE_HOST}
+      port: ${TOKEN_STORAGE_PORT}
+      password: ${TOKEN_STORAGE_PASSWORD}
+
+jwt:
+  secret: ${TOKEN_SECRET}
+  accessTokenTTL: ${TOKEN_ACCESS_TTL}
+  refreshTokenTTL: ${TOKEN_REFRESH_TTL}

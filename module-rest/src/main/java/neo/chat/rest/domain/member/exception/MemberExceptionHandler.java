@@ -1,15 +1,17 @@
 package neo.chat.rest.domain.member.exception;
 
 import jakarta.validation.ConstraintViolationException;
-import lombok.extern.slf4j.Slf4j;
 import neo.chat.rest.domain.member.controller.MemberController;
 import neo.chat.rest.util.BaseResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.sql.SQLIntegrityConstraintViolationException;
 
 @RestControllerAdvice(basePackageClasses = MemberController.class)
 public class MemberExceptionHandler {
@@ -46,6 +48,30 @@ public class MemberExceptionHandler {
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<BaseResponse<String>> handleMissingServletRequestParameterException(
             MissingServletRequestParameterException exception
+    ) {
+        return BaseResponse.responseEntityOf(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
+
+    /**
+     * SQL 제약사항 위반할 때<br/>
+     * ex) foreign key, unique key, primary key, not null or more...
+     *
+     */
+    @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
+    public ResponseEntity<BaseResponse<String>> handleSQLIntegrityConstraintViolationException(
+            SQLIntegrityConstraintViolationException exception
+    ) {
+        return BaseResponse.responseEntityOf(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
+
+    /**
+     * HTTP 메세지를 읽을 수 없을 때<br/>
+     * ex) 필요한 request body가 없을 때 or more...
+     *
+     */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<BaseResponse<String>> handleHttpMessageNotReadableException(
+            HttpMessageNotReadableException exception
     ) {
         return BaseResponse.responseEntityOf(HttpStatus.BAD_REQUEST, exception.getMessage());
     }

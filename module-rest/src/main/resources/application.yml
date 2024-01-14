@@ -6,6 +6,7 @@ spring:
     include:
       - command-db
       - query-db
+      - auth-token
 
   mvc:
     servlet:
