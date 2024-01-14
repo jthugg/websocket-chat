@@ -41,18 +41,20 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                                 && !tokenService.isExpired(token.substring(TokenConstant.BEARER.length())),
                         INVALID_TOKEN_MESSAGE
                 );
-                UserDetails user = securityUserDetailsService.loadUserByUsername(tokenService.getUsername(token));
+                UserDetails user = securityUserDetailsService
+                        .loadUserByUsername(tokenService.getUsername(token.substring(TokenConstant.BEARER.length())));
                 SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
                         user.getUsername(),
                         user.getPassword(),
                         user.getAuthorities()
                 ));
             }, SecurityContextHolder::clearContext);
-            filterChain.doFilter(request, response);
         } catch (InvalidTokenException
                 | IllegalArgumentException
                 | UsernameNotFoundException exception) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, exception.getMessage());
+            SecurityContextHolder.clearContext();
+        } finally {
+            filterChain.doFilter(request, response);
         }
     }
 
