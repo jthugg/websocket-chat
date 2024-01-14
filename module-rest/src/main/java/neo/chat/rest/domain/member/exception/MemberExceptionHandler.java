@@ -8,6 +8,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MissingRequestCookieException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -42,6 +43,13 @@ public class MemberExceptionHandler {
     @ExceptionHandler(MemberException.UsernameNotFoundException.class)
     public ResponseEntity<BaseResponse<String>> handleUsernameNotFoundException(
             MemberException.UsernameNotFoundException exception
+    ) {
+        return BaseResponse.responseEntityOf(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
+
+    @ExceptionHandler(MissingRequestCookieException.class)
+    public ResponseEntity<BaseResponse<String>> handleMissingRequestCookieException(
+            MissingRequestCookieException exception
     ) {
         return BaseResponse.responseEntityOf(HttpStatus.BAD_REQUEST, exception.getMessage());
     }

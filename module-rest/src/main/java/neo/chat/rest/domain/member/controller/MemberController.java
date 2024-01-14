@@ -117,4 +117,25 @@ public class MemberController {
         };
     }
 
+    @PostMapping(ApiRoute.LOGOUT)
+    public ResponseEntity<BaseResponse<Void>> logout(
+            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String accessToken,
+            @CookieValue(value = TokenConstant.REFRESH_TOKEN, required = false) String refreshToken
+    ) {
+        tokenService.blacklist(accessToken, refreshToken);
+        return BaseResponse.headedVoidResponseEntityOf(
+                HttpStatus.OK,
+                headers -> {
+                    headers.remove(HttpHeaders.AUTHORIZATION);
+                    headers.add(
+                            HttpHeaders.SET_COOKIE,
+                            ResponseCookie.from(TokenConstant.REFRESH_TOKEN)
+                                    .maxAge(0)
+                                    .build()
+                                    .toString()
+                    );
+                }
+        );
+    }
+
 }
