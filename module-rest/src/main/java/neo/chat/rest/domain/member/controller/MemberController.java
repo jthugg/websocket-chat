@@ -8,7 +8,9 @@ import neo.chat.jwt.service.TokenService;
 import neo.chat.jwt.util.TokenConstant;
 import neo.chat.jwt.util.TokenProperties;
 import neo.chat.persistence.command.entity.CMember;
+import neo.chat.persistence.query.document.QMember;
 import neo.chat.rest.domain.member.dto.InputValidation;
+import neo.chat.rest.domain.member.dto.request.Login;
 import neo.chat.rest.domain.member.dto.request.Register;
 import neo.chat.rest.domain.member.dto.response.Member;
 import neo.chat.rest.domain.member.dto.response.UsernameCheckResult;
@@ -57,6 +59,17 @@ public class MemberController {
         TokenSet tokenSet = tokenService.generateAccessToken(member.getUsername());
         return BaseResponse.headedResponseEntityOf(
                 HttpStatus.CREATED,
+                setTokenHeaders(tokenSet),
+                Member.from(member)
+        );
+    }
+
+    @PostMapping(ApiRoute.LOGIN)
+    public ResponseEntity<BaseResponse<Member>> login(@RequestBody @Valid Login dto) {
+        QMember member = memberService.login(dto.username(), dto.password());
+        TokenSet tokenSet = tokenService.generateAccessToken(member.getUsername());
+        return BaseResponse.headedResponseEntityOf(
+                HttpStatus.OK,
                 setTokenHeaders(tokenSet),
                 Member.from(member)
         );

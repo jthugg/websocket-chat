@@ -6,6 +6,8 @@ import neo.chat.persistence.command.config.CommandDBConfig;
 import neo.chat.persistence.command.entity.CMember;
 import neo.chat.persistence.query.MemberQueryRepository;
 import neo.chat.persistence.query.config.QueryDBConfig;
+import neo.chat.persistence.query.document.QMember;
+import neo.chat.rest.domain.member.exception.MemberException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +33,17 @@ public class SimpleMemberService implements MemberService {
                 .username(username)
                 .password(passwordEncoder.encode(password))
                 .build());
+    }
+
+    @Override
+    @Transactional(transactionManager = QueryDBConfig.TRANSACTION_MANAGER)
+    public QMember login(String username, String password) {
+        QMember member = memberQueryRepository.findByUsername(username)
+                .orElseThrow(MemberException.LoginUsernameNotFoundException::new);
+        if (passwordEncoder.matches(password, member.getPassword())) {
+            return member;
+        }
+        throw new MemberException.PasswordNotMatchedException();
     }
 
 }

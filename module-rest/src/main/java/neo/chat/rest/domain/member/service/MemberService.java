@@ -1,6 +1,7 @@
 package neo.chat.rest.domain.member.service;
 
 import neo.chat.persistence.command.entity.CMember;
+import neo.chat.persistence.query.document.QMember;
 
 public interface MemberService {
 
@@ -19,5 +20,14 @@ public interface MemberService {
      * @return CMember
      */
     CMember register(String username, String password);
+
+    /**
+     * 로그인
+     *
+     * @param username
+     * @param password
+     * @return QMember
+     */
+    QMember login(String username, String password);
 
 }
