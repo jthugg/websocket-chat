@@ -46,4 +46,11 @@ public class SimpleMemberService implements MemberService {
         throw new MemberException.PasswordNotMatchedException();
     }
 
+    @Override
+    @Transactional(transactionManager = QueryDBConfig.TRANSACTION_MANAGER)
+    public QMember getMemberByUsername(String username) {
+        return memberQueryRepository.findByUsername(username)
+                .orElseThrow(MemberException.UsernameNotFoundException::new);
+    }
+
 }

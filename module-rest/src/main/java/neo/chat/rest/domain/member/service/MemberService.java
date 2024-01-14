@@ -30,4 +30,13 @@ public interface MemberService {
      */
     QMember login(String username, String password);
 
+    /**
+     * 사용자 이름으로 검색<br/>
+     * 토큰 재발급 시 유저 유효성 검사, 사용자 이름 검색 등
+     *
+     * @param username
+     * @return QMember
+     */
+    QMember getMemberByUsername(String username);
+
 }

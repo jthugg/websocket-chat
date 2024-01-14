@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import neo.chat.jwt.model.TokenSet;
 import neo.chat.jwt.service.TokenService;
+import neo.chat.jwt.util.InvalidTokenException;
 import neo.chat.jwt.util.TokenConstant;
 import neo.chat.jwt.util.TokenProperties;
 import neo.chat.persistence.command.entity.CMember;
@@ -24,9 +25,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -72,6 +75,26 @@ public class MemberController {
                 HttpStatus.OK,
                 setTokenHeaders(tokenSet),
                 Member.from(member)
+        );
+    }
+
+    @PostMapping(ApiRoute.REISSUE)
+    public ResponseEntity<BaseResponse<Member>> reissue(
+            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String accessToken,
+            @CookieValue(TokenConstant.REFRESH_TOKEN) String refreshToken
+    ) {
+        if (tokenService.isExpired(refreshToken)) {
+            throw new InvalidTokenException();
+        }
+        if (accessToken != null && accessToken.startsWith(TokenConstant.BEARER)) {
+            accessToken = accessToken.substring(TokenConstant.BEARER.length());
+        }
+        tokenService.blacklist(accessToken, refreshToken);
+        String username = tokenService.getUsername(refreshToken);
+        return BaseResponse.headedResponseEntityOf(
+                HttpStatus.OK,
+                setTokenHeaders(tokenService.generateAccessToken(username)),
+                Member.from(memberService.getMemberByUsername(username))
         );
     }
 

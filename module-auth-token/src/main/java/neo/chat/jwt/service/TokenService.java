@@ -1,6 +1,5 @@
 package neo.chat.jwt.service;
 
-import com.auth0.jwt.exceptions.JWTVerificationException;
 import neo.chat.jwt.model.TokenSet;
 import neo.chat.jwt.util.InvalidTokenException;
 
@@ -18,7 +17,7 @@ public interface TokenService {
      *
      * @param token
      * @return boolean
-     * @throws JWTVerificationException any step of JWT verifying except expired
+     * @throws InvalidTokenException any step of JWT verifying except expired
      */
     boolean isExpired(String token) throws InvalidTokenException;
     /**
@@ -26,7 +25,7 @@ public interface TokenService {
      *
      * @param accessToken
      * @return String
-     * @throws JWTVerificationException any step of JWT verifying except expired
+     * @throws InvalidTokenException any step of JWT verifying except expired
      */
     String getUsername(String accessToken) throws InvalidTokenException;
     /**
