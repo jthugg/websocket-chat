@@ -9,9 +9,12 @@ import neo.chat.rest.util.ApiRoute;
 import neo.chat.rest.util.BaseResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,6 +25,11 @@ public class RoomController {
     @PostMapping(ApiRoute.ROOM_CREATE)
     public ResponseEntity<BaseResponse<Room>> createRoom(@RequestBody @Valid Create dto) {
         return BaseResponse.responseEntityOf(HttpStatus.OK, Room.from(roomService.create(dto)));
+    }
+
+    @PostMapping(ApiRoute.ROOM_ENTER)
+    public ResponseEntity<BaseResponse<Room>> enterRoom(@PathVariable UUID targetRoomId) {
+        return BaseResponse.responseEntityOf(HttpStatus.OK, Room.from(roomService.enter(targetRoomId)));
     }
 
 }

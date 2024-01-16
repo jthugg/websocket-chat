@@ -1,0 +1,3 @@
+distributedLockStorage:
+  host: ${DISTRIBUTED_LOCK_STORAGE_HOST}
+  port: ${DISTRIBUTED_LOCK_STORAGE_PORT}

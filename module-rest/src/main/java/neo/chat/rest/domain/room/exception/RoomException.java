@@ -10,4 +10,20 @@ public class RoomException {
         }
     }
 
+    public static class RoomNotFoundException extends RuntimeException {
+        public static final String MESSAGE = "채팅방을 찾을 수 없습니다.";
+
+        public RoomNotFoundException() {
+            super(MESSAGE);
+        }
+    }
+
+    public static class AlreadyParticipatingRoom extends RuntimeException {
+        public static final String MESSAGE = "이미 참여중인 채팅방 입니다.";
+
+        public AlreadyParticipatingRoom() {
+            super(MESSAGE);
+        }
+    }
+
 }

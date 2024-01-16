@@ -5,4 +5,5 @@ include 'module-auth-token'
 include 'module-rest'
 include 'module-websocket'
 include 'module-data-sync'
+include 'module-concurrency'
 

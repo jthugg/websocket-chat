@@ -12,6 +12,7 @@ public class ApiRoute {
     public static final String LOGOUT = "/logout"; // POST
 
     public static final String ROOM_CREATE = "/rooms"; // POST
+    public static final String ROOM_ENTER = "/rooms/{targetRoomId}"; // POST
 
     public static final AntPathRequestMatcher[] PERMIT_ALL = {
             new AntPathRequestMatcher(REISSUE, HttpMethod.POST.name()),
@@ -24,6 +25,7 @@ public class ApiRoute {
     };
     public static final AntPathRequestMatcher[] AUTHENTICATED = {
             new AntPathRequestMatcher(ROOM_CREATE, HttpMethod.POST.name()),
+            new AntPathRequestMatcher(ROOM_ENTER, HttpMethod.POST.name()),
     };
 
 }

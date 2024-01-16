@@ -17,4 +17,18 @@ public class RoomExceptionHandler {
         return BaseResponse.responseEntityOf(HttpStatus.BAD_REQUEST, exception.getMessage());
     }
 
+    @ExceptionHandler(RoomException.RoomNotFoundException.class)
+    public ResponseEntity<BaseResponse<String>> handleRoomNotFoundException(
+            RoomException.RoomNotFoundException exception
+    ) {
+        return BaseResponse.responseEntityOf(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
+
+    @ExceptionHandler(RoomException.AlreadyParticipatingRoom.class)
+    public ResponseEntity<BaseResponse<String>> handleAlreadyParticipatingRoom(
+            RoomException.AlreadyParticipatingRoom exception
+    ) {
+        return BaseResponse.responseEntityOf(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
+
 }
