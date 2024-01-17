@@ -7,6 +7,8 @@ import lombok.Setter;
 import neo.chat.persistence.query.document.QMember;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 
+import java.time.Instant;
+
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class QParticipant {
@@ -15,13 +17,16 @@ public class QParticipant {
     protected QMember member;
     @Setter
     protected Boolean isHost;
+    protected Instant joinAt;
 
     public QParticipant(
             QMember member,
-            Boolean isHost
+            Boolean isHost,
+            Instant joinAt
     ) {
         this.member = member;
         this.isHost = isHost;
+        this.joinAt = joinAt;
     }
 
 }

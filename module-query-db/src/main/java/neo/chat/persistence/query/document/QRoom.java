@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import neo.chat.persistence.query.util.MongoDocument;
 import neo.chat.persistence.query.util.QParticipant;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
@@ -12,7 +13,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @Getter
-@Document
+@Document(collection = QRoom.DOCUMENT_NAME)
 @NoArgsConstructor
 public class QRoom extends MongoDocument {
 
@@ -24,6 +25,7 @@ public class QRoom extends MongoDocument {
     protected int capacity;
     @Setter
     protected String password;
+    @DBRef
     @Setter
     protected QMember host;
     protected Map<UUID, QParticipant> participants;
