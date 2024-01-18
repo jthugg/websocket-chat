@@ -13,5 +13,6 @@ public interface RoomService {
     CRoom enter(UUID targetId, Enter dto);
     void leave(UUID targetId);
     CRoom update(UUID targetId, Update dto);
+    void delete(UUID targetId);
 
 }

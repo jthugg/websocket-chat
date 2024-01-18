@@ -58,4 +58,12 @@ public class RoomException {
         }
     }
 
+    public static class CannotDeleteChatRoomException extends RuntimeException {
+        public static final String MESSAGE = "채팅방을 삭제할 수 없습니다.";
+
+        public CannotDeleteChatRoomException() {
+            super(MESSAGE);
+        }
+    }
+
 }

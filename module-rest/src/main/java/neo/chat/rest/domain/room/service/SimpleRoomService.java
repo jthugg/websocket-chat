@@ -121,4 +121,18 @@ public class SimpleRoomService implements RoomService {
         return room;
     }
 
+    @Override
+    @DistributedLock(type = LockType.CHAT_ROOM, targetDataSource = TargetDataSource.COMMAND)
+    public void delete(UUID targetId) {
+        roomCommandRepository.findByIdFetchHostFetchParticipantsFetchMember(targetId).ifPresent(room -> {
+            if (room.getParticipants().size() > 1) {
+                throw new RoomException.CannotDeleteChatRoomException();
+            }
+            if (!room.getHost().getId().equals(SecurityUserContextHolder.get().getId())) {
+                throw new RoomException.HostAuthorityRequiredException();
+            }
+            room.remove();
+        });
+    }
+
 }

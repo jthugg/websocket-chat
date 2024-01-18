@@ -53,4 +53,10 @@ public class RoomController {
         return BaseResponse.responseEntityOf(HttpStatus.OK, Room.from(roomService.update(targetRoomId, dto)));
     }
 
+    @DeleteMapping(ApiRoute.ROOM_DELETE)
+    public ResponseEntity<BaseResponse<Void>> deleteRoom(@PathVariable UUID targetRoomId) {
+        roomService.delete(targetRoomId);
+        return BaseResponse.voidResponseEntityOf(HttpStatus.OK);
+    }
+
 }
