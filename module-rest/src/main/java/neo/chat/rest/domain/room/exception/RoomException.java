@@ -26,4 +26,12 @@ public class RoomException {
         }
     }
 
+    public static class HostCannotLeaveException extends RuntimeException {
+        public static final String MESSAGE = "호스트는 다른 사람이 있는 방을 떠날 수 없습니다. 새로운 호스트를 지정해주세요.";
+
+        public HostCannotLeaveException() {
+            super(MESSAGE);
+        }
+    }
+
 }

@@ -8,6 +8,7 @@ import java.util.UUID;
 public interface RoomService {
 
     CRoom create(Create dto);
-    CRoom enter(UUID targetRoomId);
+    CRoom enter(UUID targetId);
+    void leave(UUID targetId);
 
 }

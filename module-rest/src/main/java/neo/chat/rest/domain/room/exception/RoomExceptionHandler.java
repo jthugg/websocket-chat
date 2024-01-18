@@ -31,4 +31,11 @@ public class RoomExceptionHandler {
         return BaseResponse.responseEntityOf(HttpStatus.BAD_REQUEST, exception.getMessage());
     }
 
+    @ExceptionHandler(RoomException.HostCannotLeaveException.class)
+    public ResponseEntity<BaseResponse<String>> handleHostCannotLeaveException(
+            RoomException.HostCannotLeaveException exception
+    ) {
+        return BaseResponse.responseEntityOf(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
+
 }

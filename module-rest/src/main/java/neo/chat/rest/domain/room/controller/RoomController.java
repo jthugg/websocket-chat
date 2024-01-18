@@ -9,6 +9,7 @@ import neo.chat.rest.util.ApiRoute;
 import neo.chat.rest.util.BaseResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,6 +31,12 @@ public class RoomController {
     @PostMapping(ApiRoute.ROOM_ENTER)
     public ResponseEntity<BaseResponse<Room>> enterRoom(@PathVariable UUID targetRoomId) {
         return BaseResponse.responseEntityOf(HttpStatus.OK, Room.from(roomService.enter(targetRoomId)));
+    }
+
+    @DeleteMapping(ApiRoute.ROOM_LEAVE)
+    public ResponseEntity<BaseResponse<Void>> leaveRoom(@PathVariable UUID targetRoomId) {
+        roomService.leave(targetRoomId);
+        return BaseResponse.voidResponseEntityOf(HttpStatus.OK);
     }
 
 }

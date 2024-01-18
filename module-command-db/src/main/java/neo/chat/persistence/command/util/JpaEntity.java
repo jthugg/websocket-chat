@@ -26,6 +26,12 @@ public abstract class JpaEntity implements Persistable<UUID> {
         return this.removedAt != null;
     }
 
+    public void remove() {
+        if (removedAt == null) {
+            removedAt = Instant.now();
+        }
+    }
+
     @Override
     public boolean isNew() {
         return true;

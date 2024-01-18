@@ -5,6 +5,7 @@ import neo.chat.lock.annotation.DistributedLock;
 import neo.chat.lock.annotation.LockType;
 import neo.chat.lock.annotation.TargetDataSource;
 import neo.chat.persistence.command.MemberCommandRepository;
+import neo.chat.persistence.command.ParticipantCommandRepository;
 import neo.chat.persistence.command.RoomCommandRepository;
 import neo.chat.persistence.command.config.CommandDBConfig;
 import neo.chat.persistence.command.entity.CMember;
@@ -24,6 +25,7 @@ public class SimpleRoomService implements RoomService {
 
     private final RoomCommandRepository roomCommandRepository;
     private final MemberCommandRepository memberCommandRepository;
+    private final ParticipantCommandRepository participantCommandRepository;
 
     @Override
     @Transactional(transactionManager = CommandDBConfig.TRANSACTION_MANAGER)
@@ -63,6 +65,25 @@ public class SimpleRoomService implements RoomService {
                 .isHost(false)
                 .build());
         return roomCommandRepository.save(room);
+    }
+
+    @Override
+    @DistributedLock(type = LockType.CHAT_ROOM, targetDataSource = TargetDataSource.COMMAND)
+    public void leave(UUID targetId) {
+        roomCommandRepository.findByIdFetchParticipantsFetchMember(targetId)
+                .ifPresent(room -> room.getParticipants().forEach(participant -> {
+                    if (participant.getMember().getId().equals(SecurityUserContextHolder.get().getId())) {
+                        if (room.getParticipants().size() == 1) {
+                            participant.remove();
+                            room.remove();
+                            return;
+                        }
+                        if (participant.getIsHost()) {
+                            throw new RoomException.HostCannotLeaveException();
+                        }
+                        participant.remove();
+                    }
+                }));
     }
 
 }

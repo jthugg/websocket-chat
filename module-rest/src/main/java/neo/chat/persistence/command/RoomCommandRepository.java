@@ -18,7 +18,11 @@ public interface RoomCommandRepository extends CrudRepository<CRoom, UUID> {
      * @param id room identifier
      * @return CRoom - nullable wrapped Optional
      */
-    @Query("select distinct cr from CRoom cr join fetch cr.participants cp join fetch cp.member cm where cr.id = :id")
+    @Query("select distinct cr " +
+            "from CRoom cr " +
+            "join fetch cr.participants cp " +
+            "join fetch cp.member cm " +
+            "where cr.id = :id and cr.removedAt is null and cp.removedAt is null and cm.removedAt is null")
     Optional<CRoom> findByIdFetchParticipantsFetchMember(@Param("id") UUID id);
 
 }
