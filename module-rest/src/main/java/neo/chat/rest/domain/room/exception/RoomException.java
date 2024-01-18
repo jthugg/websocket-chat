@@ -50,4 +50,12 @@ public class RoomException {
         }
     }
 
+    public static class HostAuthorityRequiredException extends RuntimeException {
+        public static final String MESSAGE = "호스트 권한이 필요합니다.";
+
+        public HostAuthorityRequiredException() {
+            super(MESSAGE);
+        }
+    }
+
 }

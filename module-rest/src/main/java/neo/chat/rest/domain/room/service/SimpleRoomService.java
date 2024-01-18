@@ -12,6 +12,7 @@ import neo.chat.persistence.command.entity.CParticipant;
 import neo.chat.persistence.command.entity.CRoom;
 import neo.chat.rest.domain.room.dto.request.Create;
 import neo.chat.rest.domain.room.dto.request.Enter;
+import neo.chat.rest.domain.room.dto.request.Update;
 import neo.chat.rest.domain.room.exception.RoomException;
 import neo.chat.security.util.SecurityUserContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -91,6 +92,33 @@ public class SimpleRoomService implements RoomService {
                         participant.remove();
                     }
                 }));
+    }
+
+    @Override
+    @DistributedLock(type = LockType.CHAT_ROOM, targetDataSource = TargetDataSource.COMMAND)
+    public CRoom update(UUID targetId, Update dto) {
+        CRoom room = roomCommandRepository.findByIdFetchHostFetchParticipantsFetchMember(targetId)
+                        .orElseThrow(RoomException.RoomNotFoundException::new);
+        if (!SecurityUserContextHolder.get().getId().equals(room.getHost().getId())) {
+            throw new RoomException.HostAuthorityRequiredException();
+        }
+        room.setTitle(dto.title());
+        room.setCapacity(dto.capacity());
+        room.setPassword(passwordEncoder.encode(dto.password()));
+        if (!room.getHost().getId().equals(dto.host())) {
+            UUID before = room.getHost().getId();
+            UUID after = dto.host();
+            room.getParticipants().forEach(participant -> {
+                if (participant.getMember().getId().equals(before)) {
+                    participant.setIsHost(false);
+                }
+                if (participant.getMember().getId().equals(after)) {
+                    participant.setIsHost(true);
+                    room.setHost(participant.getMember());
+                }
+            });
+        }
+        return room;
     }
 
 }

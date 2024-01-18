@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import neo.chat.rest.domain.room.dto.request.Create;
 import neo.chat.rest.domain.room.dto.request.Enter;
+import neo.chat.rest.domain.room.dto.request.Update;
 import neo.chat.rest.domain.room.dto.response.Room;
 import neo.chat.rest.domain.room.service.RoomService;
 import neo.chat.rest.util.ApiRoute;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -41,6 +43,14 @@ public class RoomController {
     public ResponseEntity<BaseResponse<Void>> leaveRoom(@PathVariable UUID targetRoomId) {
         roomService.leave(targetRoomId);
         return BaseResponse.voidResponseEntityOf(HttpStatus.OK);
+    }
+
+    @PutMapping(ApiRoute.ROOM_UPDATE)
+    public ResponseEntity<BaseResponse<Room>> updateRoomData(
+            @PathVariable UUID targetRoomId,
+            @RequestBody @Valid Update dto
+    ) {
+        return BaseResponse.responseEntityOf(HttpStatus.OK, Room.from(roomService.update(targetRoomId, dto)));
     }
 
 }

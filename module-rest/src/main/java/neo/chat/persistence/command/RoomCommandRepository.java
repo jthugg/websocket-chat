@@ -25,4 +25,18 @@ public interface RoomCommandRepository extends CrudRepository<CRoom, UUID> {
             "where cr.id = :id and cr.removedAt is null and cp.removedAt is null and cm.removedAt is null")
     Optional<CRoom> findByIdFetchParticipantsFetchMember(@Param("id") UUID id);
 
+    /**
+     * 채팅방 정보와 해당 채팅방 호스트 정보, 참여자 정보 모두 페치 조인
+     *
+     * @param id room identifier
+     * @return CRoom - nullable wrapped Optional
+     */
+    @Query("select cr " +
+            "from CRoom cr " +
+            "join fetch cr.host ch " +
+            "join fetch  cr.participants cp " +
+            "join fetch cp.member cm " +
+            "where cr.id = :id and cr.removedAt is null")
+    Optional<CRoom> findByIdFetchHostFetchParticipantsFetchMember(@Param("id") UUID id);
+
 }

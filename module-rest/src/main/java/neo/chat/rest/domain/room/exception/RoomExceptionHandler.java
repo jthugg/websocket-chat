@@ -52,4 +52,11 @@ public class RoomExceptionHandler {
         return BaseResponse.responseEntityOf(HttpStatus.BAD_REQUEST, exception.getMessage());
     }
 
+    @ExceptionHandler(RoomException.HostAuthorityRequiredException.class)
+    public ResponseEntity<BaseResponse<String>> handleHostAuthorityRequiredException(
+            RoomException.HostAuthorityRequiredException exception
+    ) {
+        return BaseResponse.responseEntityOf(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
+
 }

@@ -14,6 +14,7 @@ public class ApiRoute {
     public static final String ROOM_CREATE = "/rooms"; // POST
     public static final String ROOM_ENTER = "/rooms/{targetRoomId}/participants"; // POST
     public static final String ROOM_LEAVE = "/rooms/{targetRoomId}/participants"; // DELETE
+    public static final String ROOM_UPDATE = "/rooms/{targetRoomId}"; // PUT
 
     public static final AntPathRequestMatcher[] PERMIT_ALL = {
             new AntPathRequestMatcher(REISSUE, HttpMethod.POST.name()),
@@ -28,6 +29,7 @@ public class ApiRoute {
             new AntPathRequestMatcher(ROOM_CREATE, HttpMethod.POST.name()),
             new AntPathRequestMatcher(ROOM_ENTER, HttpMethod.POST.name()),
             new AntPathRequestMatcher(ROOM_LEAVE, HttpMethod.DELETE.name()),
+            new AntPathRequestMatcher(ROOM_UPDATE, HttpMethod.PUT.name()),
     };
 
 }
