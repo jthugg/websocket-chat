@@ -24,9 +24,23 @@ public class RoomExceptionHandler {
         return BaseResponse.responseEntityOf(HttpStatus.BAD_REQUEST, exception.getMessage());
     }
 
-    @ExceptionHandler(RoomException.AlreadyParticipatingRoom.class)
+    @ExceptionHandler(RoomException.RoomPasswordNotMatchedException.class)
+    public ResponseEntity<BaseResponse<String>> handleRoomPasswordNotMatchedException(
+            RoomException.RoomPasswordNotMatchedException exception
+    ) {
+        return BaseResponse.responseEntityOf(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
+
+    @ExceptionHandler(RoomException.AlreadyParticipatingRoomException.class)
     public ResponseEntity<BaseResponse<String>> handleAlreadyParticipatingRoom(
-            RoomException.AlreadyParticipatingRoom exception
+            RoomException.AlreadyParticipatingRoomException exception
+    ) {
+        return BaseResponse.responseEntityOf(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
+
+    @ExceptionHandler(RoomException.NoVacancyInChatRoomException.class)
+    public ResponseEntity<BaseResponse<String>>handleNoVacancyInChatRoomException(
+            RoomException.NoVacancyInChatRoomException exception
     ) {
         return BaseResponse.responseEntityOf(HttpStatus.BAD_REQUEST, exception.getMessage());
     }

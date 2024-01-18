@@ -18,10 +18,26 @@ public class RoomException {
         }
     }
 
-    public static class AlreadyParticipatingRoom extends RuntimeException {
+    public static class RoomPasswordNotMatchedException extends RuntimeException {
+        public static final String MESSAGE = "채팅방 비밀번호가 일치하지 않습니다.";
+
+        public RoomPasswordNotMatchedException() {
+            super(MESSAGE);
+        }
+    }
+
+    public static class AlreadyParticipatingRoomException extends RuntimeException {
         public static final String MESSAGE = "이미 참여중인 채팅방 입니다.";
 
-        public AlreadyParticipatingRoom() {
+        public AlreadyParticipatingRoomException() {
+            super(MESSAGE);
+        }
+    }
+
+    public static class NoVacancyInChatRoomException extends RuntimeException {
+        public static final String MESSAGE = "채팅방이 가득 찼습니다.";
+
+        public NoVacancyInChatRoomException() {
             super(MESSAGE);
         }
     }

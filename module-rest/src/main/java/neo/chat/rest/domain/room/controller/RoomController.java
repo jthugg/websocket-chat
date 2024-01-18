@@ -3,6 +3,7 @@ package neo.chat.rest.domain.room.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import neo.chat.rest.domain.room.dto.request.Create;
+import neo.chat.rest.domain.room.dto.request.Enter;
 import neo.chat.rest.domain.room.dto.response.Room;
 import neo.chat.rest.domain.room.service.RoomService;
 import neo.chat.rest.util.ApiRoute;
@@ -29,8 +30,11 @@ public class RoomController {
     }
 
     @PostMapping(ApiRoute.ROOM_ENTER)
-    public ResponseEntity<BaseResponse<Room>> enterRoom(@PathVariable UUID targetRoomId) {
-        return BaseResponse.responseEntityOf(HttpStatus.OK, Room.from(roomService.enter(targetRoomId)));
+    public ResponseEntity<BaseResponse<Room>> enterRoom(
+            @PathVariable UUID targetRoomId,
+            @RequestBody @Valid Enter dto
+    ) {
+        return BaseResponse.responseEntityOf(HttpStatus.OK, Room.from(roomService.enter(targetRoomId, dto)));
     }
 
     @DeleteMapping(ApiRoute.ROOM_LEAVE)
