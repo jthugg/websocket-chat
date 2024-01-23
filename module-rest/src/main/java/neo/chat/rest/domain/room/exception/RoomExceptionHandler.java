@@ -59,4 +59,11 @@ public class RoomExceptionHandler {
         return BaseResponse.responseEntityOf(HttpStatus.BAD_REQUEST, exception.getMessage());
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<BaseResponse<String>> handleIllegalArgumentException(
+            IllegalArgumentException exception
+    ) {
+        return BaseResponse.responseEntityOf(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
+
 }

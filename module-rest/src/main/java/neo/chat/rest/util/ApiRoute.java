@@ -11,6 +11,7 @@ public class ApiRoute {
     public static final String REISSUE = "/reissue"; // POST
     public static final String LOGOUT = "/logout"; // POST
 
+    public static final String ROOM_SEARCH = "/rooms"; // GET
     public static final String ROOM_CREATE = "/rooms"; // POST
     public static final String ROOM_ENTER = "/rooms/{targetRoomId}/participants"; // POST
     public static final String ROOM_LEAVE = "/rooms/{targetRoomId}/participants"; // DELETE
@@ -20,6 +21,7 @@ public class ApiRoute {
     public static final AntPathRequestMatcher[] PERMIT_ALL = {
             new AntPathRequestMatcher(REISSUE, HttpMethod.POST.name()),
             new AntPathRequestMatcher(LOGOUT, HttpMethod.POST.name()),
+            new AntPathRequestMatcher(ROOM_SEARCH, HttpMethod.GET.name()),
     };
     public static final AntPathRequestMatcher[] ANONYMOUS = {
             new AntPathRequestMatcher(USERNAME_CHECK, HttpMethod.GET.name()),

@@ -4,14 +4,18 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import neo.chat.rest.domain.room.dto.request.Create;
 import neo.chat.rest.domain.room.dto.request.Enter;
+import neo.chat.rest.domain.room.dto.request.Search;
 import neo.chat.rest.domain.room.dto.request.Update;
 import neo.chat.rest.domain.room.dto.response.Room;
+import neo.chat.rest.domain.room.dto.response.SearchResult;
+import neo.chat.rest.domain.room.service.RoomSearchService;
 import neo.chat.rest.domain.room.service.RoomService;
 import neo.chat.rest.util.ApiRoute;
 import neo.chat.rest.util.BaseResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -24,11 +28,17 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class RoomController {
 
+    private final RoomSearchService roomSearchService;
     private final RoomService roomService;
+
+    @GetMapping(ApiRoute.ROOM_SEARCH)
+    public ResponseEntity<BaseResponse<SearchResult>> searchRoom(Search dto) {
+        return BaseResponse.responseEntityOf(HttpStatus.OK, SearchResult.from(roomSearchService.search(dto)));
+    }
 
     @PostMapping(ApiRoute.ROOM_CREATE)
     public ResponseEntity<BaseResponse<Room>> createRoom(@RequestBody @Valid Create dto) {
-        return BaseResponse.responseEntityOf(HttpStatus.OK, Room.from(roomService.create(dto)));
+        return BaseResponse.responseEntityOf(HttpStatus.OK, Room.asDetail(roomService.create(dto)));
     }
 
     @PostMapping(ApiRoute.ROOM_ENTER)
@@ -36,7 +46,7 @@ public class RoomController {
             @PathVariable UUID targetRoomId,
             @RequestBody @Valid Enter dto
     ) {
-        return BaseResponse.responseEntityOf(HttpStatus.OK, Room.from(roomService.enter(targetRoomId, dto)));
+        return BaseResponse.responseEntityOf(HttpStatus.OK, Room.asDetail(roomService.enter(targetRoomId, dto)));
     }
 
     @DeleteMapping(ApiRoute.ROOM_LEAVE)
@@ -50,7 +60,7 @@ public class RoomController {
             @PathVariable UUID targetRoomId,
             @RequestBody @Valid Update dto
     ) {
-        return BaseResponse.responseEntityOf(HttpStatus.OK, Room.from(roomService.update(targetRoomId, dto)));
+        return BaseResponse.responseEntityOf(HttpStatus.OK, Room.asDetail(roomService.update(targetRoomId, dto)));
     }
 
     @DeleteMapping(ApiRoute.ROOM_DELETE)
