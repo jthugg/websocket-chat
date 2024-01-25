@@ -34,10 +34,14 @@ public class SimpleRoomService implements RoomService {
     public CRoom create(Create dto) {
         CMember member = memberCommandRepository.findById(SecurityUserContextHolder.get().getId())
                 .orElseThrow(RoomException.MemberNotFoundException::new);
+        String password = null;
+        if (dto.password() != null) {
+            password = passwordEncoder.encode(dto.password());
+        }
         CRoom room = CRoom.builder()
                 .title(dto.title())
                 .capacity(dto.capacity())
-                .password(dto.password())
+                .password(password)
                 .host(member)
                 .build();
         CParticipant participant = CParticipant.builder()
@@ -56,7 +60,7 @@ public class SimpleRoomService implements RoomService {
                 .orElseThrow(RoomException.MemberNotFoundException::new);
         CRoom room = roomCommandRepository.findByIdFetchParticipantsFetchMember(targetId) // fetch join
                 .orElseThrow(RoomException.RoomNotFoundException::new);
-        if (!passwordEncoder.matches(dto.password(), room.getPassword())) {
+        if (room.getPassword() != null && !passwordEncoder.matches(dto.password(), room.getPassword())) {
             throw new RoomException.RoomPasswordNotMatchedException();
         }
         room.getParticipants().forEach(participant -> {
@@ -102,9 +106,13 @@ public class SimpleRoomService implements RoomService {
         if (!SecurityUserContextHolder.get().getId().equals(room.getHost().getId())) {
             throw new RoomException.HostAuthorityRequiredException();
         }
+        String password = null;
+        if (dto.password() != null) {
+            password = passwordEncoder.encode(dto.password());
+        }
         room.setTitle(dto.title());
         room.setCapacity(dto.capacity());
-        room.setPassword(passwordEncoder.encode(dto.password()));
+        room.setPassword(password);
         if (!room.getHost().getId().equals(dto.host())) {
             UUID before = room.getHost().getId();
             UUID after = dto.host();
