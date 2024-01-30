@@ -10,4 +10,12 @@ public class ChatException {
         }
     }
 
+    public static class InvalidAccessException extends RuntimeException {
+        public static final String MESSAGE = "비정상 접근입니다.";
+
+        public InvalidAccessException() {
+            super(MESSAGE);
+        }
+    }
+
 }
