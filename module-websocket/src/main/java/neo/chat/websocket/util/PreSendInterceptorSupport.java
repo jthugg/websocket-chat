@@ -47,7 +47,7 @@ public class PreSendInterceptorSupport {
         assert accessor.getUser() != null;
         UUID roomId = UUID.fromString(accessor.getDestination().replace("/sub/rooms/", ""));
         UUID memberId = UUID.fromString(accessor.getUser().getName());
-        if (roomQueryRepository.checkSubscribable(roomId, memberId)) {
+        if (!roomQueryRepository.checkSubscribable(roomId, memberId)) {
             throw new ChatException.InvalidAccessException();
         }
     }
