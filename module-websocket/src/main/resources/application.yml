@@ -19,6 +19,11 @@ spring:
         highlight_sql: true
         use_sql_comments: true
 
+  kafka:
+    consumer:
+      bootstrap-servers: ${EVENT_BROKER_BOOTSTRAP_SERVER}
+      group-id: chat-message-broker
+
 logging:
   level:
     org.hibernate.SQL: debug

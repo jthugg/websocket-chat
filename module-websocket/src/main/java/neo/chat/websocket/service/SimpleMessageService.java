@@ -8,6 +8,8 @@ import neo.chat.persistence.command.config.CommandDBConfig;
 import neo.chat.persistence.command.entity.CMessage;
 import neo.chat.persistence.command.entity.CParticipant;
 import neo.chat.websocket.exception.ChatException;
+import neo.chat.websocket.model.ChatMessage;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +22,7 @@ public class SimpleMessageService implements MessageService {
 
     private final MessageCommandRepository messageCommandRepository;
     private final ParticipantCommandRepository participantCommandRepository;
+    private final SimpMessagingTemplate template;
 
     @Override
     @Transactional(transactionManager = CommandDBConfig.TRANSACTION_MANAGER)
@@ -32,6 +35,19 @@ public class SimpleMessageService implements MessageService {
                 .sender(participant.getMember())
                 .content(payload)
                 .build());
+    }
+
+    @Override
+    public void publish(CMessage message) {
+        template.convertAndSend(
+                "/sub/rooms/" + message.getRoom().getId().toString(),
+                new ChatMessage(
+                        message.getRoom().getId(),
+                        message.getSender().getId(),
+                        message.getContent(),
+                        message.getCreatedAt()
+                )
+        );
     }
 
 }
