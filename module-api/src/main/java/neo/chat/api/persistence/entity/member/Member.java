@@ -25,6 +25,7 @@ public class Member extends JpaEntity<Long> {
     @Column(unique = true, updatable = false, columnDefinition = "VARCHAR", length = 20)
     protected String username;
     protected String password;
+    @Column(columnDefinition = "VARCHAR", length = 20)
     @Enumerated(EnumType.STRING)
     protected MemberRole role;
 
@@ -33,6 +34,7 @@ public class Member extends JpaEntity<Long> {
         this.id = EntityIDGenerator.MEMBER.getGenerator().generate().toLong();
         this.username = username;
         this.password = password;
+        this.role = MemberRole.ROLE_NORMAL;
     }
 
 }
