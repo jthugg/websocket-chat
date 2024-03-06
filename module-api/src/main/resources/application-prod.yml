@@ -14,3 +14,8 @@ spring:
       ddl-auto: validate
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+
+jwt:
+  secret: ${JWT_SECRET}
+  atkTTL: ${JWT_ATK_TTL} # sec
+  rtkTTL: ${JWT_RTK_TTL} # sec

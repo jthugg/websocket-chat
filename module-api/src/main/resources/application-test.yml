@@ -28,6 +28,11 @@ spring:
     ansi:
       enabled: always
 
+jwt:
+  secret: testJwtSecretKey
+  atkTTL: 300 # sec
+  rtkTTL: 600 # sec
+
 logging:
   level:
     sql: trace

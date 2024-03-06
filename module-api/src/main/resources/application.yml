@@ -14,7 +14,3 @@ spring:
         - local
       prod:
         - prod
-
-  jpa:
-    open-in-view: false
-
