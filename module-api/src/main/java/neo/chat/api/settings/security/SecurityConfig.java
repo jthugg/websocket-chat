@@ -1,18 +1,25 @@
 package neo.chat.api.settings.security;
 
+import lombok.RequiredArgsConstructor;
+import neo.chat.api.application.auth.service.TokenService;
 import neo.chat.api.settings.route.ApiRoute;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final TokenService tokenService;
+    private final UserDetailsService userDetailsService;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -33,7 +40,7 @@ public class SecurityConfig {
                         .requestMatchers(ApiRoute.AUTHENTICATED).authenticated()
                         .anyRequest().permitAll())
                 .addFilterBefore(
-                        new ChatAuthenticationFilter(),
+                        new ChatAuthenticationFilter(tokenService, userDetailsService),
                         UsernamePasswordAuthenticationFilter.class
                 )
                 .exceptionHandling(handler -> handler
