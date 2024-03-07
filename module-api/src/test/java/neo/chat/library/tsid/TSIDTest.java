@@ -87,4 +87,49 @@ public class TSIDTest {
         assert ids.size() == numberOfConcurrentRequests: "식별자 값이 중복됐습니다.";
     }
 
+    @ParameterizedTest
+    @ValueSource(ints = {128, 256, 512, 1024})
+    public void singleInstanceVsMultiInstance(int numberOfConcurrentRequests) throws InterruptedException {
+        ExecutorService service = Executors.newCachedThreadPool();
+
+        int maxInstance = 10;
+        List<TsidFactory> factories = new ArrayList<>();
+        while (factories.size() < maxInstance) {
+            factories.add(TsidFactory.builder().withNode(0).withNodeBits(16).build());
+        }
+
+        List<Callable<Long>> singleTasks = new ArrayList<>();
+        TsidFactory singleFactory = factories.get(0);
+        while (singleTasks.size() < numberOfConcurrentRequests) {
+            singleTasks.add(() -> singleFactory.create().toLong());
+        }
+
+        List<Callable<Long>> multiTasks = new ArrayList<>();
+        while (multiTasks.size() < numberOfConcurrentRequests) {
+            for (TsidFactory factory : factories) {
+                multiTasks.add(() -> factory.create().toLong());
+            }
+        }
+
+        List<Callable<Long>> newTasks = new ArrayList<>();
+        while (newTasks.size() < numberOfConcurrentRequests) {
+            newTasks.add(() -> TsidFactory.builder().withNode(0).withNodeBits(16).build().create().toLong());
+        }
+
+        long singleStart = System.nanoTime();
+        service.invokeAll(singleTasks);
+        long singleDuration = System.nanoTime() - singleStart;
+        long multiStart = System.nanoTime();
+        service.invokeAll(multiTasks);
+        long multiDuration = System.nanoTime() - multiStart;
+        long newStart = System.nanoTime();
+        service.invokeAll(newTasks);
+        long newDuration = System.nanoTime() - newStart;
+
+        System.out.println("single duration: " + singleDuration);
+        System.out.println("multi duration:  " + multiDuration);
+        System.out.println("new duration:    " + newDuration);
+        System.out.println();
+    }
+
 }
