@@ -10,6 +10,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: local
       TZ: UTC
+      MYSQL_DATABASE: chat
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_0900_ai_ci
