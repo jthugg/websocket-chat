@@ -15,6 +15,12 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     testImplementation 'org.springframework.security:spring-security-test'
 
+    // Jpa
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    // MySQL Driver
+    runtimeOnly 'com.mysql:mysql-connector-j'
+
     // TSID
     implementation 'com.github.f4b6a3:tsid-creator:5.2.6'
 }
