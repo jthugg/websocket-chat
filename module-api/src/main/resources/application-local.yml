@@ -25,10 +25,6 @@ spring:
     ansi:
       enabled: always
 
-tsid:
-  node-id: 0
-  node-bit-size: 16
-
 logging:
   level:
     sql: trace

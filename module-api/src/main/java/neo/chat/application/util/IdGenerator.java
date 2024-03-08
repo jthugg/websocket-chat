@@ -2,9 +2,7 @@ package neo.chat.application.util;
 
 import com.github.f4b6a3.tsid.Tsid;
 import com.github.f4b6a3.tsid.TsidFactory;
-import org.springframework.context.annotation.Configuration;
 
-@Configuration
 public class IdGenerator {
 
     public static final int DEFAULT_NODE_ID = 0;
