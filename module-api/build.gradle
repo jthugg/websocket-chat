@@ -21,6 +21,9 @@ dependencies {
     // MySQL Driver
     runtimeOnly 'com.mysql:mysql-connector-j'
 
+    // H2 Driver
+    testRuntimeOnly 'com.h2database:h2'
+
     // TSID
     implementation 'com.github.f4b6a3:tsid-creator:5.2.6'
 }
