@@ -35,10 +35,12 @@ public class SimpleMemberAuthService implements MemberAuthService {
                 member,
                 JWT.create()
                         .withClaim(JWTProperties.USER_ID, member.getId())
+                        .withClaim(JWTProperties.TYPE, JWTProperties.ACCESS_TOKEN)
                         .withExpiresAt(now.plus(jwtProperties.atkTTL(), ChronoUnit.SECONDS))
                         .sign(jwtProperties.algorithm()),
                 JWT.create()
                         .withClaim(JWTProperties.USER_ID, member.getId())
+                        .withClaim(JWTProperties.TYPE, JWTProperties.REFRESH_TOKEN)
                         .withExpiresAt(now.plus(jwtProperties.rtkTTL(), ChronoUnit.SECONDS))
                         .sign(jwtProperties.algorithm()),
                 jwtProperties.atkTTL(),

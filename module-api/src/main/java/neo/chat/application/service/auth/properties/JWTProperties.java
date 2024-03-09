@@ -9,5 +9,8 @@ public record JWTProperties(
 ) {
 
     public static final String USER_ID = "uid";
+    public static final String TYPE = "typ";
+    public static final String ACCESS_TOKEN = "atk";
+    public static final String REFRESH_TOKEN = "rtk";
 
 }
