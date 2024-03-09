@@ -1,4 +1,4 @@
-package neo.chat.unit.auth.test;
+package neo.chat.unit.auth.test.service;
 
 import neo.chat.application.service.auth.service.SimpleMemberAuthService;
 import neo.chat.persistence.repository.member.MemberRepository;
