@@ -25,6 +25,11 @@ spring:
     ansi:
       enabled: always
 
+token:
+  secret: localTokenSecret
+  atkTTL: 300
+  rtkTTL: 600
+
 logging:
   level:
     sql: trace
