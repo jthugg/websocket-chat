@@ -41,7 +41,7 @@ public class Response<T> {
         return ResponseEntity.status(status).headers(headersConsumer).body(new Response<>());
     }
 
-    public static <T> ResponseEntity<Response<T>> responseResponseEntityOf(HttpStatus status, T content) {
+    public static <T> ResponseEntity<Response<T>> responseEntityOf(HttpStatus status, T content) {
         return ResponseEntity.status(status).body(new Response<>(content));
     }
 
