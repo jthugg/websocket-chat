@@ -10,6 +10,8 @@ public class ApiRoute {
     public static final String PING_ANONYMOUS = "/ping/anonymous";
     public static final String PING_AUTHENTICATED = "/ping/authenticated";
 
+    public static final String AUTH_CHECK_USERNAME = "/auth/username";
+
     public static final AntPathRequestMatcher[] PERMIT_ALL = {
             new AntPathRequestMatcher(PING_PERMIT_ALL, HttpMethod.GET.name())
     };
