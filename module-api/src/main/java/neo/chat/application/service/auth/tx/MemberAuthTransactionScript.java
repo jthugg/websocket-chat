@@ -1,6 +1,7 @@
 package neo.chat.application.service.auth.tx;
 
 import lombok.RequiredArgsConstructor;
+import neo.chat.application.service.auth.exception.MemberNotFoundException;
 import neo.chat.application.util.EntityIdGenerator;
 import neo.chat.persistence.entity.member.Member;
 import neo.chat.persistence.repository.member.MemberRepository;
@@ -22,6 +23,11 @@ public class MemberAuthTransactionScript {
                 username,
                 passwordEncoder.encode(password)
         ));
+    }
+
+    @Transactional(readOnly = true)
+    public Member readMemberByUsername(String username) {
+        return memberRepository.findByUsername(username).orElseThrow(MemberNotFoundException::new);
     }
 
 }

@@ -2,11 +2,13 @@ package neo.chat.application.service.auth.service;
 
 import com.auth0.jwt.JWT;
 import lombok.RequiredArgsConstructor;
+import neo.chat.application.service.auth.exception.MemberPasswordNotMatchedException;
 import neo.chat.application.service.auth.model.AuthResult;
 import neo.chat.application.service.auth.properties.JWTProperties;
 import neo.chat.application.service.auth.tx.MemberAuthTransactionScript;
 import neo.chat.persistence.entity.member.Member;
 import neo.chat.persistence.repository.member.MemberRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +22,7 @@ public class SimpleMemberAuthService implements MemberAuthService {
     private final MemberRepository memberRepository;
     private final MemberAuthTransactionScript transactionScript;
     private final JWTProperties jwtProperties;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     @Transactional(readOnly = true)
@@ -29,7 +32,19 @@ public class SimpleMemberAuthService implements MemberAuthService {
 
     @Override
     public AuthResult register(String username, String password) {
-        Member member = transactionScript.createMember(username, password);
+        return publishAuthResult(transactionScript.createMember(username, password));
+    }
+
+    @Override
+    public AuthResult login(String username, String password) {
+        Member member = transactionScript.readMemberByUsername(username);
+        if (passwordEncoder.matches(password, member.getPassword())) {
+            return publishAuthResult(member);
+        }
+        throw new MemberPasswordNotMatchedException();
+    }
+
+    private AuthResult publishAuthResult(Member member) {
         Instant now = Instant.now();
         return new AuthResult(
                 member,
