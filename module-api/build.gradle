@@ -26,6 +26,9 @@ dependencies {
 
     // TSID
     implementation 'com.github.f4b6a3:tsid-creator:5.2.6'
+
+    // Validation
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
 }
 
 test {
