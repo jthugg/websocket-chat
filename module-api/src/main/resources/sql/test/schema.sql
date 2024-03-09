@@ -1,4 +1,4 @@
--- define prod database schema
+-- define test database schema
 
 -- Member
 DROP TABLE IF EXISTS `Member`;

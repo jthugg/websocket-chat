@@ -1,4 +1,4 @@
--- define prod database data
+-- define test database data
 
 INSERT INTO `Member` VALUES (0, 'test00', 'test00', 'ROLE_NORMAL', now(), null);
 INSERT INTO `Member` VALUES (1, 'test01', 'test01', 'ROLE_NORMAL', now(), null);
