@@ -34,6 +34,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
 public class SimpleMemberAuthServiceTest {
@@ -277,6 +278,52 @@ public class SimpleMemberAuthServiceTest {
         Assertions.assertThrows(
                 MemberNotFoundException.class,
                 () -> simpleMemberAuthService.authorization(testTokenValue)
+        );
+    }
+
+    @Test
+    @DisplayName("회원 삭제: 성공 케이스")
+    void deleteMemberByIdAndPasswordTestCase01() {
+        Member member = new Member(100L, "test", "test");
+        AuthMemberContextHolder.set(member);
+
+        Mockito.when(memberRepository.findByIdAndRemovedAtIsNull(ArgumentMatchers.anyLong()))
+                .thenReturn(Optional.of(member));
+        Mockito.when(passwordEncoder.matches(ArgumentMatchers.anyString(), ArgumentMatchers.anyString()))
+                .thenReturn(true);
+
+        Assertions.assertDoesNotThrow(() -> {
+            simpleMemberAuthService.withdraw("test");
+            assert member.isRemoved();
+        });
+    }
+
+    @Test
+    @DisplayName("회원 삭제: 실패 케이스 - 회원 조회 실패")
+    void deleteMemberByIdAndPasswordTestCase02() {
+        Mockito.when(memberRepository.findByIdAndRemovedAtIsNull(ArgumentMatchers.anyLong()))
+                .thenReturn(Optional.empty());
+
+        Assertions.assertThrows(
+                MemberNotFoundException.class,
+                () -> simpleMemberAuthService.withdraw("test")
+        );
+    }
+
+    @Test
+    @DisplayName("회원 삭제: 실패 케이스 - 비밀번호 불일치")
+    void deleteMemberByIdAndPasswordTestCase03() {
+        Member member = new Member(100L, "test", "test");
+        AuthMemberContextHolder.set(member);
+
+        Mockito.when(memberRepository.findByIdAndRemovedAtIsNull(ArgumentMatchers.anyLong()))
+                .thenReturn(Optional.of(member));
+        Mockito.when(passwordEncoder.matches(ArgumentMatchers.anyString(), ArgumentMatchers.anyString()))
+                .thenReturn(false);
+
+        Assertions.assertThrows(
+                MemberPasswordNotMatchedException.class,
+                () -> simpleMemberAuthService.withdraw("test")
         );
     }
 
