@@ -6,12 +6,16 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
 import lombok.RequiredArgsConstructor;
 import neo.chat.application.service.auth.exception.InvalidTokenException;
+import neo.chat.application.service.auth.exception.MemberNotFoundException;
 import neo.chat.application.service.auth.exception.MemberPasswordNotMatchedException;
 import neo.chat.application.service.auth.model.AuthResult;
+import neo.chat.application.service.auth.model.ChatUserDetails;
 import neo.chat.application.service.auth.properties.JWTProperties;
 import neo.chat.application.service.auth.tx.MemberAuthTransactionScript;
 import neo.chat.persistence.entity.member.Member;
 import neo.chat.persistence.repository.member.MemberRepository;
+import neo.chat.settings.context.AuthMemberContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -80,6 +84,37 @@ public class SimpleMemberAuthService implements MemberAuthService {
                 jwtProperties.atkTTL(),
                 jwtProperties.rtkTTL()
         );
+    }
+
+    @Override
+    public UserDetails authorization(String accessToken) {
+        try {
+            DecodedJWT decodedJWT = jwtVerifier.verify(accessToken);
+            if (decodedJWT.getClaim(JWTProperties.TYPE).asString().equals(JWTProperties.ACCESS_TOKEN)) {
+                long memberId = decodedJWT.getClaim(JWTProperties.USER_ID).asLong();
+                Member member = memberRepository.findByIdAndRemovedAtIsNull(memberId)
+                        .orElseThrow(MemberNotFoundException::new);
+                AuthMemberContextHolder.set(member);
+                return new ChatUserDetails(member);
+            }
+            throw new InvalidTokenException();
+        } catch (JWTVerificationException exception) {
+            throw new InvalidTokenException();
+        }
+    }
+
+    /**
+     * 사용하지 않는 기능.<br />
+     * 더미 유저 생성을 비활성화 하기 위해 UserDetailsService 를 구현합니다.<br />
+     * MemberAuthService.authorization(String accessToken) 로 대체
+     *
+     * @throws UnsupportedOperationException 항상 예외 발생
+     * @deprecated since 1.0.0
+     */
+    @Override
+    @Deprecated(since = "1.0.0", forRemoval = true)
+    public UserDetails loadUserByUsername(String username) {
+        throw new UnsupportedOperationException();
     }
 
 }

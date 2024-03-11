@@ -2,14 +2,13 @@ package neo.chat.settings.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import neo.chat.application.service.auth.service.MemberAuthService;
 import neo.chat.settings.route.ApiRoute;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -18,11 +17,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final ObjectMapper mapper;
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+    private final MemberAuthService memberAuthService;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -38,7 +33,7 @@ public class SecurityConfig {
                         .requestMatchers(ApiRoute.AUTHENTICATED).authenticated()
                         .anyRequest().permitAll())
                 .addFilterBefore(
-                        new ChatAuthenticationFilter(),
+                        new ChatAuthenticationFilter(memberAuthService),
                         UsernamePasswordAuthenticationFilter.class
                 )
                 .exceptionHandling(handler -> handler
