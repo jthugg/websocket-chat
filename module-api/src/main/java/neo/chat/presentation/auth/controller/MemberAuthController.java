@@ -7,6 +7,7 @@ import neo.chat.application.service.auth.model.AuthResult;
 import neo.chat.application.service.auth.properties.JWTProperties;
 import neo.chat.application.service.auth.service.MemberAuthService;
 import neo.chat.presentation.auth.dto.request.RegisterRequestDto;
+import neo.chat.presentation.auth.dto.response.MemberAuthInfoDto;
 import neo.chat.presentation.auth.valid.ValidationMessage;
 import neo.chat.presentation.auth.valid.ValidationRegexp;
 import neo.chat.presentation.util.Response;
@@ -42,9 +43,13 @@ public class MemberAuthController {
     }
 
     @PostMapping(ApiRoute.AUTH_REGISTER)
-    public ResponseEntity<Response<Object>> register(@RequestBody @Valid RegisterRequestDto dto) {
+    public ResponseEntity<Response<MemberAuthInfoDto>> register(@RequestBody @Valid RegisterRequestDto dto) {
         AuthResult result = memberAuthService.register(dto.username(), dto.password());
-        return Response.headedResponseEntityOf(HttpStatus.CREATED, tokenHeaderConsumer(result), result.member());
+        return Response.headedResponseEntityOf(
+                HttpStatus.CREATED,
+                tokenHeaderConsumer(result),
+                new MemberAuthInfoDto(result.member())
+        );
     }
 
     private Consumer<HttpHeaders> tokenHeaderConsumer(AuthResult result) {
