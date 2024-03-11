@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import neo.chat.application.service.auth.model.AuthResult;
 import neo.chat.application.service.auth.properties.JWTProperties;
 import neo.chat.application.service.auth.service.MemberAuthService;
+import neo.chat.presentation.auth.dto.request.LoginRequestDto;
 import neo.chat.presentation.auth.dto.request.RegisterRequestDto;
 import neo.chat.presentation.auth.dto.response.MemberAuthInfoDto;
 import neo.chat.presentation.auth.valid.ValidationMessage;
@@ -47,6 +48,16 @@ public class MemberAuthController {
         AuthResult result = memberAuthService.register(dto.username(), dto.password());
         return Response.headedResponseEntityOf(
                 HttpStatus.CREATED,
+                tokenHeaderConsumer(result),
+                new MemberAuthInfoDto(result.member())
+        );
+    }
+
+    @PostMapping(ApiRoute.AUTH_LOGIN)
+    public ResponseEntity<Response<MemberAuthInfoDto>> login(@RequestBody @Valid LoginRequestDto dto) {
+        AuthResult result = memberAuthService.login(dto.username(), dto.password());
+        return Response.headedResponseEntityOf(
+                HttpStatus.OK,
                 tokenHeaderConsumer(result),
                 new MemberAuthInfoDto(result.member())
         );
