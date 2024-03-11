@@ -34,7 +34,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
 public class SimpleMemberAuthServiceTest {
@@ -237,8 +236,8 @@ public class SimpleMemberAuthServiceTest {
         Member member = new Member(memberId, "test", "test");
 
         Mockito.when(jwtVerifier.verify(testTokenValue)).thenReturn(JWT.decode(testTokenValue));
-        Mockito.when(memberRepository.findByIdAndRemovedAtIsNull(ArgumentMatchers.anyLong()))
-                .thenReturn(Optional.of(member));
+        Mockito.when(memberAuthTransactionScript.readMemberById(ArgumentMatchers.anyLong()))
+                .thenReturn(member);
 
         Assertions.assertDoesNotThrow(() -> {
             UserDetails userDetails = simpleMemberAuthService.authorization(testTokenValue);
@@ -272,7 +271,7 @@ public class SimpleMemberAuthServiceTest {
                 .sign(Algorithm.HMAC512(testTokenSecret));
 
         Mockito.when(jwtVerifier.verify(testTokenValue)).thenReturn(JWT.decode(testTokenValue));
-        Mockito.when(memberRepository.findByIdAndRemovedAtIsNull(ArgumentMatchers.anyLong()))
+        Mockito.when(memberAuthTransactionScript.readMemberById(ArgumentMatchers.anyLong()))
                 .thenThrow(MemberNotFoundException.class);
 
         Assertions.assertThrows(

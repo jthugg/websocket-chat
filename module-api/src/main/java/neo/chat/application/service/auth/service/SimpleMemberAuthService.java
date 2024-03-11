@@ -92,8 +92,7 @@ public class SimpleMemberAuthService implements MemberAuthService {
             DecodedJWT decodedJWT = jwtVerifier.verify(accessToken);
             if (decodedJWT.getClaim(JWTProperties.TYPE).asString().equals(JWTProperties.ACCESS_TOKEN)) {
                 long memberId = decodedJWT.getClaim(JWTProperties.USER_ID).asLong();
-                Member member = memberRepository.findByIdAndRemovedAtIsNull(memberId)
-                        .orElseThrow(MemberNotFoundException::new);
+                Member member = transactionScript.readMemberById(memberId);
                 AuthMemberContextHolder.set(member);
                 return new ChatUserDetails(member);
             }
