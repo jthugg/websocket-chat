@@ -7,6 +7,7 @@ import neo.chat.presentation.util.Response;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -21,6 +22,16 @@ public class MemberAuthControllerAdvice {
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<Response<String>> handleConstraintViolationException(ConstraintViolationException exception) {
         return Response.responseEntityOf(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Response<String>> handleMethodArgumentNotValidException(
+            MethodArgumentNotValidException exception
+    ) {
+        return Response.responseEntityOf(
+                HttpStatus.BAD_REQUEST,
+                exception.getBindingResult().getAllErrors().get(0).getDefaultMessage()
+        );
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
