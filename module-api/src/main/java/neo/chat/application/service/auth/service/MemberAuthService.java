@@ -11,5 +11,6 @@ public interface MemberAuthService extends UserDetailsService {
     AuthResult login(String username, String password);
     AuthResult reissue(String refreshToken);
     UserDetails authorization(String accessToken);
+    void withdraw(String password);
 
 }

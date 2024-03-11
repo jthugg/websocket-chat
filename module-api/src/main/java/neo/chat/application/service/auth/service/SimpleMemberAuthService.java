@@ -102,6 +102,23 @@ public class SimpleMemberAuthService implements MemberAuthService {
         }
     }
 
+    @Override
+    @Transactional
+    public void withdraw(String password) {
+        memberRepository.findByIdAndRemovedAtIsNull(AuthMemberContextHolder.get().getId()).ifPresentOrElse(
+                member -> {
+                    if (passwordEncoder.matches(password, member.getPassword())) {
+                        member.remove();
+                        return;
+                    }
+                    throw new MemberPasswordNotMatchedException();
+                },
+                () -> {
+                    throw new MemberNotFoundException();
+                }
+        );
+    }
+
     /**
      * 사용하지 않는 기능.<br />
      * 더미 유저 생성을 비활성화 하기 위해 UserDetailsService 를 구현합니다.<br />
