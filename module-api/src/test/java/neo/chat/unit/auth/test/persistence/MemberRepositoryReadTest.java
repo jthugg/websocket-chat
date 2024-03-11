@@ -29,4 +29,19 @@ public class MemberRepositoryReadTest {
         Assertions.assertTrue(result);
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = {"nonExistingUsername", "test00"})
+    void findByUsernameTest(String username) {
+        log.info("current username: {}", username);
+        if (username.equals("nonExistingUsername")) {
+            Assertions.assertThrows(
+                    RuntimeException.class,
+                    () -> memberRepository.findByUsername(username).orElseThrow(RuntimeException::new)
+            );
+            return;
+        }
+        Assertions.assertDoesNotThrow(() ->
+                memberRepository.findByUsername(username).orElseThrow(RuntimeException::new));
+    }
+
 }
