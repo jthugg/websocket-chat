@@ -17,4 +17,15 @@ public class RegexpTest {
         Assertions.assertTrue(Pattern.matches(ValidationRegexp.USERNAME, ".-_."));
     }
 
+    @Test
+    void passwordRegexpTest() {
+        Assertions.assertTrue(Pattern.matches(ValidationRegexp.PASSWORD, "TestPassword12!@"));
+        Assertions.assertFalse(Pattern.matches(ValidationRegexp.PASSWORD, "TestPassword123"));
+        Assertions.assertFalse(Pattern.matches(ValidationRegexp.PASSWORD, "TestPassword!@"));
+        Assertions.assertFalse(Pattern.matches(ValidationRegexp.PASSWORD, "TESTPASSWORD12!@"));
+        Assertions.assertFalse(Pattern.matches(ValidationRegexp.PASSWORD, "testpassword12!@"));
+        Assertions.assertFalse(Pattern.matches(ValidationRegexp.PASSWORD, "TESTPASSWORD12!@"));
+        Assertions.assertFalse(Pattern.matches(ValidationRegexp.PASSWORD, "Tp`~!@#$%^&*()_-+="));
+    }
+
 }
