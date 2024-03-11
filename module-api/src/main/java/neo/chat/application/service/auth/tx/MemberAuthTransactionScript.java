@@ -30,4 +30,9 @@ public class MemberAuthTransactionScript {
         return memberRepository.findByUsername(username).orElseThrow(MemberNotFoundException::new);
     }
 
+    @Transactional(readOnly = true)
+    public Member readMemberById(Long id) {
+        return memberRepository.findByIdAndRemovedAtIsNull(id).orElseThrow(MemberNotFoundException::new);
+    }
+
 }
