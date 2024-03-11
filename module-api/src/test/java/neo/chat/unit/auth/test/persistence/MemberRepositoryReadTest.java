@@ -38,12 +38,12 @@ public class MemberRepositoryReadTest {
         if (username.equals("nonExistingUsername")) {
             Assertions.assertThrows(
                     RuntimeException.class,
-                    () -> memberRepository.findByUsername(username).orElseThrow(RuntimeException::new)
+                    () -> memberRepository.findByUsernameAndRemovedAtIsNull(username).orElseThrow(RuntimeException::new)
             );
             return;
         }
         Assertions.assertDoesNotThrow(() ->
-                memberRepository.findByUsername(username).orElseThrow(RuntimeException::new));
+                memberRepository.findByUsernameAndRemovedAtIsNull(username).orElseThrow(RuntimeException::new));
     }
 
     @Test

@@ -27,7 +27,7 @@ public class MemberAuthTransactionScript {
 
     @Transactional(readOnly = true)
     public Member readMemberByUsername(String username) {
-        return memberRepository.findByUsername(username).orElseThrow(MemberNotFoundException::new);
+        return memberRepository.findByUsernameAndRemovedAtIsNull(username).orElseThrow(MemberNotFoundException::new);
     }
 
     @Transactional(readOnly = true)
