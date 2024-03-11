@@ -1,10 +1,14 @@
 package neo.chat.integration.auth;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import neo.chat.application.service.auth.exception.MemberNotFoundException;
+import neo.chat.application.service.auth.exception.MemberPasswordNotMatchedException;
 import neo.chat.application.service.auth.model.AuthResult;
 import neo.chat.application.service.auth.service.MemberAuthService;
 import neo.chat.persistence.entity.member.Member;
 import neo.chat.presentation.auth.controller.MemberAuthController;
+import neo.chat.presentation.auth.dto.request.LoginRequestDto;
 import neo.chat.presentation.auth.dto.request.RegisterRequestDto;
 import neo.chat.settings.route.ApiRoute;
 import neo.chat.settings.security.SecurityConfig;
@@ -153,6 +157,86 @@ public class MemberAuthControllerTest {
                                 "TestPassword123!"
                         ))))
                 .andExpect(MockMvcResultMatchers.status().isConflict())
+                .andDo(MockMvcResultHandlers.print());
+    }
+
+    @Test
+    @DisplayName("회원 로그인: 성공 케이스")
+    void loginTestCase01() throws Exception {
+        Mockito.when(memberAuthService.login(ArgumentMatchers.anyString(), ArgumentMatchers.anyString()))
+                .thenReturn(new AuthResult(
+                        new Member(100L, "test", "test"),
+                        "testAccessToken",
+                        "testRefreshToken",
+                        0L,
+                        0L
+                ));
+
+        mvc.perform(MockMvcRequestBuilders.post(ApiRoute.AUTH_LOGIN)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(objectMapper.writeValueAsBytes(new LoginRequestDto(
+                        "test",
+                        "TestPassword123!"
+                ))))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+    }
+
+    @Test
+    @DisplayName("회원 로그인: 실패 케이스 - 아이디 제약조건 위반")
+    void loginTestCase02() throws Exception {
+        mvc.perform(MockMvcRequestBuilders.post(ApiRoute.AUTH_LOGIN)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(objectMapper.writeValueAsBytes(new RegisterRequestDto(
+                                "test!",
+                                "TestPassword123!"
+                        ))))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andDo(MockMvcResultHandlers.print());
+    }
+
+    @Test
+    @DisplayName("회원 로그인: 실패 케이스 - 비밀번호 제약조건 위반")
+    void loginTestCase03() throws Exception {
+        mvc.perform(MockMvcRequestBuilders.post(ApiRoute.AUTH_LOGIN)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(objectMapper.writeValueAsBytes(new RegisterRequestDto(
+                                "test",
+                                "TestPassword123"
+                        ))))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andDo(MockMvcResultHandlers.print());
+    }
+
+    @Test
+    @DisplayName("회원 로그인: 실패 케이스 - 가입되지 않은 아이디")
+    void loginTestCase04() throws Exception {
+        Mockito.when(memberAuthService.login(ArgumentMatchers.anyString(), ArgumentMatchers.anyString()))
+                .thenThrow(MemberNotFoundException.class);
+
+        mvc.perform(MockMvcRequestBuilders.post(ApiRoute.AUTH_LOGIN)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(objectMapper.writeValueAsBytes(new RegisterRequestDto(
+                                "test",
+                                "TestPassword123!"
+                        ))))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andDo(MockMvcResultHandlers.print());
+    }
+
+    @Test
+    @DisplayName("회원 로그인: 실패 케이스 - 비밀번호 불일치")
+    void loginTestCase05() throws Exception {
+        Mockito.when(memberAuthService.login(ArgumentMatchers.anyString(), ArgumentMatchers.anyString()))
+                .thenThrow(MemberPasswordNotMatchedException.class);
+
+        mvc.perform(MockMvcRequestBuilders.post(ApiRoute.AUTH_LOGIN)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(objectMapper.writeValueAsBytes(new RegisterRequestDto(
+                                "test",
+                                "TestPassword123!"
+                        ))))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andDo(MockMvcResultHandlers.print());
     }
 
