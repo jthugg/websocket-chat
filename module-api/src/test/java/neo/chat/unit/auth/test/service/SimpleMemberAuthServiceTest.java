@@ -17,6 +17,7 @@ import neo.chat.application.service.auth.service.SimpleMemberAuthService;
 import neo.chat.application.service.auth.tx.MemberAuthTransactionScript;
 import neo.chat.persistence.entity.member.Member;
 import neo.chat.persistence.repository.member.MemberRepository;
+import neo.chat.settings.context.AuthMemberContextHolder;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,10 +29,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
 public class SimpleMemberAuthServiceTest {
@@ -218,6 +221,64 @@ public class SimpleMemberAuthServiceTest {
         Mockito.when(memberAuthTransactionScript.readMemberById(memberId)).thenThrow(MemberNotFoundException.class);
 
         Assertions.assertThrows(MemberNotFoundException.class, () -> simpleMemberAuthService.reissue(token));
+    }
+
+    @Test
+    @DisplayName("엑세스 토큰 인가: 성공 케이스")
+    void authorizationTestCase01() {
+        long memberId = 100L;
+        long atkTTL = 300L;
+        String testTokenSecret = "testSecret";
+        String testTokenValue = JWT.create()
+                .withClaim(JWTProperties.TYPE, JWTProperties.ACCESS_TOKEN)
+                .withClaim(JWTProperties.USER_ID, memberId)
+                .withExpiresAt(Instant.now().plus(atkTTL, ChronoUnit.SECONDS))
+                .sign(Algorithm.HMAC512(testTokenSecret));
+        Member member = new Member(memberId, "test", "test");
+
+        Mockito.when(jwtVerifier.verify(testTokenValue)).thenReturn(JWT.decode(testTokenValue));
+        Mockito.when(memberRepository.findByIdAndRemovedAtIsNull(ArgumentMatchers.anyLong()))
+                .thenReturn(Optional.of(member));
+
+        Assertions.assertDoesNotThrow(() -> {
+            UserDetails userDetails = simpleMemberAuthService.authorization(testTokenValue);
+            Assertions.assertInstanceOf(UserDetails.class, userDetails);
+            Assertions.assertSame(AuthMemberContextHolder.get(), member);
+        });
+    }
+
+    @Test
+    @DisplayName("엑세스 토큰 인가: 실패 케이스 - 토큰 검증 실패")
+    void authorizationTestCase02() {
+        String testTokenValue = "testTokenValue";
+
+        Mockito.when(jwtVerifier.verify(testTokenValue)).thenThrow(JWTVerificationException.class);
+
+        Assertions.assertThrows(
+                InvalidTokenException.class,
+                () -> simpleMemberAuthService.authorization(testTokenValue)
+        );
+    }
+
+    @Test
+    @DisplayName("엑세스 토큰 인가: 실패 케이스 - 회원 조회 실패")
+    void authorizationTestCase03() {
+        long atkTTL = 300L;
+        String testTokenSecret = "testSecret";
+        String testTokenValue = JWT.create()
+                .withClaim(JWTProperties.TYPE, JWTProperties.ACCESS_TOKEN)
+                .withClaim(JWTProperties.USER_ID, 0L)
+                .withExpiresAt(Instant.now().plus(atkTTL, ChronoUnit.SECONDS))
+                .sign(Algorithm.HMAC512(testTokenSecret));
+
+        Mockito.when(jwtVerifier.verify(testTokenValue)).thenReturn(JWT.decode(testTokenValue));
+        Mockito.when(memberRepository.findByIdAndRemovedAtIsNull(ArgumentMatchers.anyLong()))
+                .thenThrow(MemberNotFoundException.class);
+
+        Assertions.assertThrows(
+                MemberNotFoundException.class,
+                () -> simpleMemberAuthService.authorization(testTokenValue)
+        );
     }
 
 }
