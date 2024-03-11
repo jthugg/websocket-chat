@@ -1,5 +1,6 @@
 package neo.chat.unit.auth.test.tx;
 
+import neo.chat.application.service.auth.exception.MemberNotFoundException;
 import neo.chat.application.service.auth.tx.MemberAuthTransactionScript;
 import neo.chat.persistence.entity.member.Member;
 import neo.chat.persistence.repository.member.MemberRepository;
@@ -14,6 +15,8 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
 public class MemberAuthTransactionScriptTest {
@@ -51,6 +54,30 @@ public class MemberAuthTransactionScriptTest {
         Assertions.assertThrows(
                 DataIntegrityViolationException.class,
                 () -> memberAuthTransactionScript.createMember(username, password)
+        );
+    }
+
+    @Test
+    @DisplayName("회원 식별자 조회: 성공 케이스")
+    void readMemberByIdTestCase01() {
+        long memberId = 100L;
+        Member member = new Member(memberId, "test", "test");
+
+        Mockito.when(memberRepository.findByIdAndRemovedAtIsNull(memberId)).thenReturn(Optional.of(member));
+
+        Assertions.assertDoesNotThrow(() -> memberAuthTransactionScript.readMemberById(memberId));
+    }
+
+    @Test
+    @DisplayName("회원 식별자 조회: 실패 케이스 - 주어진 식별자로 회원을 조회할 수 없는 경우")
+    void readMemberByIdTestCase02() {
+        long memberId = 100L;
+
+        Mockito.when(memberRepository.findByIdAndRemovedAtIsNull(memberId)).thenReturn(Optional.empty());
+
+        Assertions.assertThrows(
+                MemberNotFoundException.class,
+                () -> memberAuthTransactionScript.readMemberById(memberId)
         );
     }
 

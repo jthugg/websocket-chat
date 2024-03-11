@@ -1,9 +1,14 @@
 package neo.chat.unit.auth.test.service;
 
 import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.AlgorithmMismatchException;
+import com.auth0.jwt.exceptions.JWTDecodeException;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.SignatureVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
+import com.auth0.jwt.interfaces.JWTVerifier;
+import neo.chat.application.service.auth.exception.InvalidTokenException;
 import neo.chat.application.service.auth.exception.MemberNotFoundException;
 import neo.chat.application.service.auth.exception.MemberPasswordNotMatchedException;
 import neo.chat.application.service.auth.model.AuthResult;
@@ -22,10 +27,11 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 @ExtendWith(MockitoExtension.class)
 public class SimpleMemberAuthServiceTest {
@@ -38,6 +44,8 @@ public class SimpleMemberAuthServiceTest {
     JWTProperties jwtProperties;
     @Mock
     PasswordEncoder passwordEncoder;
+    @Mock
+    JWTVerifier jwtVerifier;
     @InjectMocks
     SimpleMemberAuthService simpleMemberAuthService;
 
@@ -127,6 +135,89 @@ public class SimpleMemberAuthServiceTest {
                 MemberPasswordNotMatchedException.class,
                 () -> simpleMemberAuthService.login(username, password)
         );
+    }
+
+    @Test
+    @DisplayName("토큰 재발급: 성공 케이스")
+    void reissueTestCase01() {
+        String testSecret = "testSecret";
+        Algorithm algorithm = Algorithm.HMAC512(testSecret);
+        long atkTTL = 300;
+        long rtkTTL = 300;
+        Long memberId = 100L;
+        String token = JWT.create()
+                .withClaim(JWTProperties.USER_ID, memberId)
+                .withClaim(JWTProperties.TYPE, JWTProperties.REFRESH_TOKEN)
+                .withExpiresAt(Instant.now().plus(rtkTTL, ChronoUnit.SECONDS))
+                .sign(algorithm);
+        Member member = new Member(memberId, "test", "test");
+
+        Mockito.when(jwtVerifier.verify(token)).thenReturn(JWT.decode(token));
+        Mockito.when(memberAuthTransactionScript.readMemberById(memberId)).thenReturn(member);
+        Mockito.when(jwtProperties.algorithm()).thenReturn(algorithm);
+        Mockito.when(jwtProperties.atkTTL()).thenReturn(atkTTL);
+        Mockito.when(jwtProperties.rtkTTL()).thenReturn(rtkTTL);
+
+        Assertions.assertDoesNotThrow(() -> simpleMemberAuthService.reissue(token));
+    }
+
+    @Test
+    @DisplayName("토큰 재발급: 실패 케이스 - 만료된 토큰")
+    void reissueTestCase02() {
+        String testTokenValue = "test";
+
+        Mockito.when(jwtVerifier.verify(testTokenValue)).thenThrow(TokenExpiredException.class);
+
+        Assertions.assertThrows(InvalidTokenException.class, () -> simpleMemberAuthService.reissue(testTokenValue));
+    }
+
+    @Test
+    @DisplayName("토큰 재발급: 실패 케이스 - 토큰 서명 오류 1")
+    void reissueTestCase03() {
+        String testTokenValue = "test";
+
+        Mockito.when(jwtVerifier.verify(testTokenValue)).thenThrow(AlgorithmMismatchException.class);
+
+        Assertions.assertThrows(InvalidTokenException.class, () -> simpleMemberAuthService.reissue(testTokenValue));
+    }
+
+    @Test
+    @DisplayName("토큰 재발급: 실패 케이스 - 토큰 서명 오류 2")
+    void reissueTestCase04() {
+        String testTokenValue = "test";
+
+        Mockito.when(jwtVerifier.verify(testTokenValue)).thenThrow(SignatureVerificationException.class);
+
+        Assertions.assertThrows(InvalidTokenException.class, () -> simpleMemberAuthService.reissue(testTokenValue));
+    }
+
+    @Test
+    @DisplayName("토큰 재발급: 성공 케이스 - 알 수 없는 문자열 토큰 입력")
+    void reissueTestCase05() {
+        String testTokenValue = "test";
+
+        Mockito.when(jwtVerifier.verify(testTokenValue)).thenThrow(JWTDecodeException.class);
+
+        Assertions.assertThrows(InvalidTokenException.class, () -> simpleMemberAuthService.reissue(testTokenValue));
+    }
+
+    @Test
+    @DisplayName("토큰 재발급: 실패 케이스 - 없는 회원 조회 요청")
+    void reissueTestCase06() {
+        String testSecret = "testSecret";
+        Algorithm algorithm = Algorithm.HMAC512(testSecret);
+        long rtkTTL = 300;
+        Long memberId = 100L;
+        String token = JWT.create()
+                .withClaim(JWTProperties.USER_ID, memberId)
+                .withClaim(JWTProperties.TYPE, JWTProperties.REFRESH_TOKEN)
+                .withExpiresAt(Instant.now().plus(rtkTTL, ChronoUnit.SECONDS))
+                .sign(algorithm);
+
+        Mockito.when(jwtVerifier.verify(token)).thenReturn(JWT.decode(token));
+        Mockito.when(memberAuthTransactionScript.readMemberById(memberId)).thenThrow(MemberNotFoundException.class);
+
+        Assertions.assertThrows(MemberNotFoundException.class, () -> simpleMemberAuthService.reissue(token));
     }
 
 }
