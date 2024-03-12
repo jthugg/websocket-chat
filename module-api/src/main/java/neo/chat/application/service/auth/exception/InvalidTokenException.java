@@ -10,4 +10,9 @@ public class InvalidTokenException extends ApplicationException {
         super(MESSAGE);
     }
 
+    @Override
+    public String getMessage() {
+        return MESSAGE;
+    }
+
 }

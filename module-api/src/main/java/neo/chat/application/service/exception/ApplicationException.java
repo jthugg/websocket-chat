@@ -1,6 +1,6 @@
 package neo.chat.application.service.exception;
 
-public class ApplicationException extends RuntimeException {
+public abstract class ApplicationException extends RuntimeException {
 
     public ApplicationException() {}
 
@@ -11,5 +11,8 @@ public class ApplicationException extends RuntimeException {
     public ApplicationException(String message, Throwable cause) {
         super(message, cause);
     }
+
+    @Override
+    public abstract String getMessage();
 
 }
