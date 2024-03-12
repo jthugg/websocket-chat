@@ -76,6 +76,23 @@ public class MemberAuthController {
         );
     }
 
+    @PostMapping(ApiRoute.AUTH_LOGOUT)
+    public ResponseEntity<Response<Void>> logout() {
+        // TODO: Expire Token
+        // Expires token via blacklisting on Redis or some other data storage.
+        // But do nothing in this version(v1.0.0) but just expire cookie value.
+        return Response.voidHeadedResponseEntityOf(
+                HttpStatus.OK,
+                headers -> headers.set(
+                        HttpHeaders.SET_COOKIE,
+                        ResponseCookie.from(JWTProperties.REFRESH_TOKEN)
+                                .maxAge(0L)
+                                .build()
+                                .toString()
+                )
+        );
+    }
+
     private Consumer<HttpHeaders> tokenHeaderConsumer(AuthResult result) {
         return headers -> {
             headers.setBearerAuth(result.accessToken());
