@@ -13,6 +13,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -33,7 +34,8 @@ public class ChatAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
         try {
             Optional.ofNullable(request.getHeader(HttpHeaders.AUTHORIZATION)).ifPresent(header -> {
-                assert header.startsWith(JWTProperties.PREFIX): TOKEN_PREFIX_NOT_SET_MESSAGE;
+                //assert header.startsWith(JWTProperties.PREFIX): TOKEN_PREFIX_NOT_SET_MESSAGE;
+                Assert.isTrue(header.startsWith(JWTProperties.PREFIX), TOKEN_PREFIX_NOT_SET_MESSAGE);
                 UserDetails userDetails = authService.authorization(header.substring(JWTProperties.PREFIX.length()));
                 SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
                         userDetails.getUsername(),
@@ -43,7 +45,8 @@ public class ChatAuthenticationFilter extends OncePerRequestFilter {
             });
         } catch (AssertionError
                 | InvalidTokenException
-                | MemberNotFoundException exception) {
+                | MemberNotFoundException
+                | IllegalArgumentException exception) {
             SecurityContextHolder.clearContext();
         } finally {
             filterChain.doFilter(request, response);
