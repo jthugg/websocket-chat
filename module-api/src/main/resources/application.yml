@@ -5,6 +5,8 @@ spring:
   profiles:
     default: local
     group:
+      test:
+        - test
       local:
         - local
       prod:
