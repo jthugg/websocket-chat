@@ -303,4 +303,21 @@ public class MemberAuthControllerTest {
                 .andDo(MockMvcResultHandlers.print());
     }
 
+    @Test
+    @WithMockUser
+    @DisplayName("회원 로그아웃: 성공 케이스")
+    void logoutTestCase01() throws Exception {
+        mvc.perform(MockMvcRequestBuilders.post(ApiRoute.AUTH_LOGOUT))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+    }
+
+    @Test
+    @DisplayName("회원 로그아웃: 실패 케이스 - 인증되지 않은 사용자 접근")
+    void logoutTestCase02() throws Exception {
+        mvc.perform(MockMvcRequestBuilders.post(ApiRoute.AUTH_LOGOUT))
+                .andExpect(MockMvcResultMatchers.status().isUnauthorized())
+                .andDo(MockMvcResultHandlers.print());
+    }
+
 }
