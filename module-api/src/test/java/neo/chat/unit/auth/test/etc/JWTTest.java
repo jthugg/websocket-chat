@@ -5,14 +5,18 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.JWTVerifier;
+import lombok.extern.slf4j.Slf4j;
 import neo.chat.application.service.auth.properties.JWTProperties;
 import neo.chat.persistence.entity.member.Member;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
+@Slf4j
+@DisplayName("JWT 토큰 테스트")
 public class JWTTest {
 
     Algorithm algorithm = Algorithm.HMAC512("testSecretKey");
@@ -20,15 +24,17 @@ public class JWTTest {
     JWTVerifier jwtVerifier = JWT.require(algorithm).build();
 
     @Test
+    @DisplayName("토큰 생성 테스트")
     void createTest() {
-        JWT.create()
+        log.info("\n\n\ntoken value: {}\n\n", JWT.create()
                 .withClaim(JWTProperties.USER_ID, member.getId())
                 .withClaim(JWTProperties.TYPE, JWTProperties.ACCESS_TOKEN)
                 .withExpiresAt(Instant.now().plus(300, ChronoUnit.SECONDS))
-                .sign(algorithm);
+                .sign(algorithm));
     }
 
     @Test
+    @DisplayName("토큰 검증 테스트")
     void verifyTest() {
         String nonExpiredToken = JWT.create()
                 .withClaim(JWTProperties.USER_ID, member.getId())
@@ -46,6 +52,7 @@ public class JWTTest {
     }
 
     @Test
+    @DisplayName("토큰 디코딩 테스트")
     void decodeTest() {
         String invalidToken = "testString";
         String availableToken = JWT.create()

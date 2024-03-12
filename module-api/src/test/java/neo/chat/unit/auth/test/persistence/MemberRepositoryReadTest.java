@@ -12,14 +12,16 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 
 @Slf4j
-@DataJpaTest
+@DataJpaTest(showSql = false)
 @ActiveProfiles("test")
+@DisplayName("회원 영속성 레이어 조회 테스트")
 public class MemberRepositoryReadTest {
 
     @Autowired
     MemberRepository memberRepository;
 
     @ParameterizedTest
+    @DisplayName("회원 존재 여부 테스트")
     @ValueSource(strings = {"nonExistingUsername", "test00", "test01", "test02", "test03", "test04"})
     void existByUsernameTest(String username) {
         log.info("current username: {}", username);
@@ -32,6 +34,7 @@ public class MemberRepositoryReadTest {
     }
 
     @ParameterizedTest
+    @DisplayName("회원 조회 테스트")
     @ValueSource(strings = {"nonExistingUsername", "test00"})
     void findByUsernameTest(String username) {
         log.info("current username: {}", username);

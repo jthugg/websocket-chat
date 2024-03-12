@@ -1,7 +1,9 @@
 package neo.chat.library.tsid;
 
 import com.github.f4b6a3.tsid.TsidFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -11,7 +13,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
@@ -21,6 +22,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+@Slf4j
+@DisplayName("TSID vs UUID 벤치마크 테스트")
 public class TSIDBenchmarkTest {
 
     static TsidFactory factory;
@@ -40,6 +43,7 @@ public class TSIDBenchmarkTest {
     }
 
     @ParameterizedTest
+    @DisplayName("생성 속도 비교 테스트")
     @ValueSource(ints = {64, 128, 256, 512, 1024, 2048, 4096, 100_000, 500_000})
     public void creationAgainstUUID(int numbersOfConcurrentRequests) throws InterruptedException {
         ExecutorService service = Executors.newCachedThreadPool();
@@ -74,14 +78,14 @@ public class TSIDBenchmarkTest {
         });
         long uuidDuration = System.nanoTime() - uuidStart;
 
-        NumberFormat nf = NumberFormat.getNumberInstance(Locale.getDefault());
-        System.out.printf("concurrent requests: %s\n", nf.format(numbersOfConcurrentRequests));
-        System.out.printf("tsid duration: %s ns\n", nf.format(tsidDuration));
-        System.out.printf("uuid duration: %s ns\n", nf.format(uuidDuration));
-        System.out.println();
+        NumberFormat nf = NumberFormat.getNumberInstance();
+        log.info("concurrent requests: {}", nf.format(numbersOfConcurrentRequests));
+        log.info("tsid duration: {} ns", nf.format(tsidDuration));
+        log.info("uuid duration: {} ns", nf.format(uuidDuration));
     }
 
     @ParameterizedTest
+    @DisplayName("Set 삽입 연산 속도 비교 테스트")
     @ValueSource(ints = {64, 128, 256, 512, 1024, 2048, 4096, 100_000, 500_000})
     public void sortAgainstUUID(int numbersOfConcurrentRequests) throws InterruptedException, ExecutionException {
         ExecutorService service = Executors.newCachedThreadPool();
@@ -113,11 +117,10 @@ public class TSIDBenchmarkTest {
         }
         long uuidDuration = System.nanoTime() - uuidStart;
 
-        NumberFormat nf = NumberFormat.getNumberInstance(Locale.getDefault());
-        System.out.printf("concurrent requests: %s\n", nf.format(numbersOfConcurrentRequests));
-        System.out.printf("tsid duration: %s ns\n", nf.format(tsidDuration));
-        System.out.printf("uuid duration: %s ns\n", nf.format(uuidDuration));
-        System.out.println();
+        NumberFormat nf = NumberFormat.getNumberInstance();
+        log.info("concurrent requests: {}", nf.format(numbersOfConcurrentRequests));
+        log.info("tsid duration: {} ns", nf.format(tsidDuration));
+        log.info("uuid duration: {} ns", nf.format(uuidDuration));
     }
 
 }

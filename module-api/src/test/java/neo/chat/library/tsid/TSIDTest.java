@@ -1,9 +1,12 @@
 package neo.chat.library.tsid;
 
 import com.github.f4b6a3.tsid.TsidFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import java.text.NumberFormat;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -16,9 +19,12 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+@Slf4j
+@DisplayName("TSID 라이브러리 테스트")
 public class TSIDTest {
 
     @ParameterizedTest
+    @DisplayName("노드 식별자 유지 여부 테스트")
     @ValueSource(ints = {256, 512, 1024, 100_000, 500_000})
     void fixedNodeIdTest(int numberOfConcurrentRequests) throws InterruptedException {
         long epochMilli = 1_704_067_200_000L; // 24.JAN.01 00:00:00.000 UTC
@@ -52,6 +58,7 @@ public class TSIDTest {
     }
 
     @ParameterizedTest
+    @DisplayName("중복 발생 테스트")
     @ValueSource(ints = {256, 512, 1024, 100_000, 500_000})
     void duplicationTest(int numberOfConcurrentRequests) throws InterruptedException {
         long epochMilli = 1_704_067_200_000L; // 24.JAN.01 00:00:00.000 UTC
@@ -88,6 +95,7 @@ public class TSIDTest {
     }
 
     @ParameterizedTest
+    @DisplayName("싱글톤, 다중, 새 객체 할당 방식 속도 비교 테스트")
     @ValueSource(ints = {128, 256, 512, 1024})
     public void singleInstanceVsMultiInstance(int numberOfConcurrentRequests) throws InterruptedException {
         ExecutorService service = Executors.newCachedThreadPool();
@@ -126,10 +134,10 @@ public class TSIDTest {
         service.invokeAll(newTasks);
         long newDuration = System.nanoTime() - newStart;
 
-        System.out.println("single duration: " + singleDuration);
-        System.out.println("multi duration:  " + multiDuration);
-        System.out.println("new duration:    " + newDuration);
-        System.out.println();
+        NumberFormat nf = NumberFormat.getInstance();
+        log.info("single dutation: {} ns", nf.format(singleDuration));
+        log.info("multi dutation: {} ns", nf.format(multiDuration));
+        log.info("new dutation: {} ns", nf.format(newDuration));
     }
 
 }

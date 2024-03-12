@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import neo.chat.persistence.entity.member.Member;
 import neo.chat.persistence.repository.member.MemberRepository;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +19,14 @@ import org.springframework.transaction.annotation.Transactional;
 @DataJpaTest(showSql = false)
 @Rollback(value = false)
 @Sql(scripts = {"classpath:sql/test/schema.sql", "classpath:sql/test/data.sql"})
+@DisplayName("회원 영속성 레이어 쓰기 테스트")
 public class MemberRepositoryWriteTest {
 
     @Autowired
     MemberRepository memberRepository;
 
     @Nested
+    @DisplayName("회원 등록 테스트")
     class RegisterWithAvailableUsernameTest {
         @Test
         void test() {
@@ -34,6 +37,7 @@ public class MemberRepositoryWriteTest {
 
     @Nested
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    @DisplayName("회원 아이디 중복 테스트")
     class RegisterWithDuplicatedUsernameTest {
         @Test
         void test() {

@@ -23,6 +23,7 @@ import java.time.temporal.ChronoUnit;
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@DisplayName("토큰 인증 필터 작동 테스트")
 public class PingWithTokenTest {
 
     @Autowired
