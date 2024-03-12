@@ -1,10 +1,14 @@
 package neo.chat.integration.auth;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.Cookie;
+import neo.chat.application.service.auth.exception.InvalidTokenException;
 import neo.chat.application.service.auth.exception.MemberNotFoundException;
 import neo.chat.application.service.auth.exception.MemberPasswordNotMatchedException;
 import neo.chat.application.service.auth.model.AuthResult;
+import neo.chat.application.service.auth.properties.JWTProperties;
 import neo.chat.application.service.auth.service.MemberAuthService;
 import neo.chat.persistence.entity.member.Member;
 import neo.chat.presentation.auth.controller.MemberAuthController;
@@ -22,11 +26,14 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockCookie;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+
+import java.time.Instant;
 
 @Import(SecurityConfig.class)
 @WebMvcTest(MemberAuthController.class)
@@ -236,6 +243,62 @@ public class MemberAuthControllerTest {
                                 "test",
                                 "TestPassword123!"
                         ))))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andDo(MockMvcResultHandlers.print());
+    }
+
+    @Test
+    @DisplayName("토큰 재발급: 성공 케이스")
+    void reissueTestCase01() throws Exception {
+        String refreshToken = JWT.create()
+                .withExpiresAt(Instant.now())
+                .sign(Algorithm.HMAC512("test"));
+        Cookie cookie = new MockCookie(JWTProperties.REFRESH_TOKEN, refreshToken);
+        AuthResult result = new AuthResult(
+                new Member(100L, "test", "test"),
+                "testAccessToken",
+                "testRefreshToken",
+                0L,
+                0L
+        );
+
+        Mockito.when(memberAuthService.reissue(ArgumentMatchers.anyString())).thenReturn(result);
+
+        mvc.perform(MockMvcRequestBuilders.post(ApiRoute.AUTH_REISSUE).cookie(cookie))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(MockMvcResultHandlers.print());
+    }
+
+    @Test
+    @DisplayName("토큰 재발급: 실패 케이스 - rtk 쿠키 없는 경우")
+    void reissueTestCase02() throws Exception {
+        mvc.perform(MockMvcRequestBuilders.post(ApiRoute.AUTH_REISSUE))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andDo(MockMvcResultHandlers.print());
+    }
+
+    @Test
+    @DisplayName("토큰 재발급: 실패 케이스 - 토큰 검증 실패: 만료, 알수 없는 문자열, 서명 오류 등")
+    void reissueTestCase03() throws Exception {
+        Cookie cookie = new MockCookie(JWTProperties.REFRESH_TOKEN, "testRefreshToken");
+
+        Mockito.when(memberAuthService.reissue(ArgumentMatchers.anyString()))
+                .thenThrow(InvalidTokenException.class);
+
+        mvc.perform(MockMvcRequestBuilders.post(ApiRoute.AUTH_REISSUE).cookie(cookie))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andDo(MockMvcResultHandlers.print());
+    }
+
+    @Test
+    @DisplayName("토큰 재발급: 실패 케이스 - 없는 회원 식별자로 생성된 토큰")
+    void reissueTestCase04() throws Exception {
+        Cookie cookie = new MockCookie(JWTProperties.REFRESH_TOKEN, "testRefreshToken");
+
+        Mockito.when(memberAuthService.reissue(ArgumentMatchers.anyString()))
+                .thenThrow(MemberNotFoundException.class);
+
+        mvc.perform(MockMvcRequestBuilders.post(ApiRoute.AUTH_REISSUE).cookie(cookie))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andDo(MockMvcResultHandlers.print());
     }
