@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -56,6 +57,18 @@ public class MemberAuthController {
     @PostMapping(ApiRoute.AUTH_LOGIN)
     public ResponseEntity<Response<MemberAuthInfoDto>> login(@RequestBody @Valid LoginRequestDto dto) {
         AuthResult result = memberAuthService.login(dto.username(), dto.password());
+        return Response.headedResponseEntityOf(
+                HttpStatus.OK,
+                tokenHeaderConsumer(result),
+                new MemberAuthInfoDto(result.member())
+        );
+    }
+
+    @PostMapping(ApiRoute.AUTH_REISSUE)
+    public ResponseEntity<Response<MemberAuthInfoDto>> reissue(
+            @CookieValue(JWTProperties.REFRESH_TOKEN) String refreshToken
+    ) {
+        AuthResult result = memberAuthService.reissue(refreshToken);
         return Response.headedResponseEntityOf(
                 HttpStatus.OK,
                 tokenHeaderConsumer(result),
