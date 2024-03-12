@@ -10,10 +10,12 @@ import neo.chat.application.service.auth.exception.MemberPasswordNotMatchedExcep
 import neo.chat.application.service.auth.model.AuthResult;
 import neo.chat.application.service.auth.properties.JWTProperties;
 import neo.chat.application.service.auth.service.MemberAuthService;
+import neo.chat.application.service.auth.service.SimpleMemberAuthService;
 import neo.chat.persistence.entity.member.Member;
 import neo.chat.presentation.auth.controller.MemberAuthController;
 import neo.chat.presentation.auth.dto.request.LoginRequestDto;
 import neo.chat.presentation.auth.dto.request.RegisterRequestDto;
+import neo.chat.presentation.auth.dto.request.WithdrawRequestDto;
 import neo.chat.settings.route.ApiRoute;
 import neo.chat.settings.security.SecurityConfig;
 import org.junit.jupiter.api.DisplayName;
@@ -318,6 +320,77 @@ public class MemberAuthControllerTest {
         mvc.perform(MockMvcRequestBuilders.post(ApiRoute.AUTH_LOGOUT))
                 .andExpect(MockMvcResultMatchers.status().isUnauthorized())
                 .andDo(MockMvcResultHandlers.print());
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("회원 탈퇴: 성공 케이스")
+    void withdrawTestCase01() throws Exception {
+        WithdrawRequestDto dto = new WithdrawRequestDto("TestPassword123!");
+        MemberAuthService service = Mockito.mock(SimpleMemberAuthService.class);
+
+        Mockito.doNothing().when(service).withdraw(Mockito.anyString());
+
+        mvc.perform(
+                MockMvcRequestBuilders.delete(ApiRoute.AUTH_WITHDRAW)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(objectMapper.writeValueAsBytes(dto))
+        ).andExpect(MockMvcResultMatchers.status().isOk()).andDo(MockMvcResultHandlers.print());
+    }
+
+    @Test
+    @DisplayName("회원 탈퇴: 실패 케이스 - 인증되지 않은 사용자 접근")
+    void withdrawTestCase02() throws Exception {
+        WithdrawRequestDto dto = new WithdrawRequestDto("TestPassword123!");
+
+        mvc.perform(
+                MockMvcRequestBuilders.delete(ApiRoute.AUTH_WITHDRAW)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(objectMapper.writeValueAsBytes(dto))
+        ).andExpect(MockMvcResultMatchers.status().isUnauthorized()).andDo(MockMvcResultHandlers.print());
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("회원 탈퇴: 실패 케이스 - 비밀번호 불일치")
+    void withdrawTestCase03() throws Exception {
+        WithdrawRequestDto dto = new WithdrawRequestDto("TestPassword123!");
+
+        Mockito.doThrow(MemberPasswordNotMatchedException.class).when(memberAuthService).withdraw(Mockito.anyString());
+
+        mvc.perform(
+                MockMvcRequestBuilders.delete(ApiRoute.AUTH_WITHDRAW)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(objectMapper.writeValueAsBytes(dto))
+        ).andExpect(MockMvcResultMatchers.status().isBadRequest()).andDo(MockMvcResultHandlers.print());
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("회원 탈퇴: 실패 케이스 - 회원 조회 실패")
+    void withdrawTestCase04() throws Exception {
+        WithdrawRequestDto dto = new WithdrawRequestDto("TestPassword123!");
+
+        Mockito.doThrow(MemberNotFoundException.class).when(memberAuthService).withdraw(Mockito.anyString());
+
+        mvc.perform(
+                MockMvcRequestBuilders.delete(ApiRoute.AUTH_WITHDRAW)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(objectMapper.writeValueAsBytes(dto))
+        ).andExpect(MockMvcResultMatchers.status().isBadRequest()).andDo(MockMvcResultHandlers.print());
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("회원 탈퇴: 실패 케이스 - 비밀번호 제약조건 위반")
+    void withdrawTestCase05() throws Exception {
+        WithdrawRequestDto dto = new WithdrawRequestDto("TestPassword123");
+
+        mvc.perform(
+                MockMvcRequestBuilders.delete(ApiRoute.AUTH_WITHDRAW)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(objectMapper.writeValueAsBytes(dto))
+        ).andExpect(MockMvcResultMatchers.status().isBadRequest()).andDo(MockMvcResultHandlers.print());
     }
 
 }
