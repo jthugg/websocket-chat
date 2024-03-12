@@ -14,4 +14,8 @@ public class AuthMemberContextHolder {
         member.set(value);
     }
 
+    public static boolean isPresent() {
+        return member.get() != null;
+    }
+
 }

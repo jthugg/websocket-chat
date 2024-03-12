@@ -56,6 +56,9 @@ public class SimpleMemberAuthService implements MemberAuthService {
     @Override
     public AuthResult reissue(String refreshToken) {
         try {
+            if (AuthMemberContextHolder.isPresent()) {
+                return publishAuthResult(AuthMemberContextHolder.get());
+            }
             DecodedJWT decodedJWT = jwtVerifier.verify(refreshToken);
             if (decodedJWT.getClaim(JWTProperties.TYPE).asString().equals(JWTProperties.REFRESH_TOKEN)) {
                 long memberId = decodedJWT.getClaim(JWTProperties.USER_ID).asLong();
