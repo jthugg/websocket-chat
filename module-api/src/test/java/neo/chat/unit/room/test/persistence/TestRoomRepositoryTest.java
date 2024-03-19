@@ -1,23 +1,33 @@
 package neo.chat.unit.room.test.persistence;
 
 import lombok.extern.slf4j.Slf4j;
+import neo.chat.application.service.room.model.ChatRoomSortOption;
+import neo.chat.application.service.room.model.RoomSearchCursor;
+import neo.chat.application.service.room.model.SearchChatRoomRequest;
 import neo.chat.persistence.entity.member.Member;
 import neo.chat.persistence.entity.participant.Participant;
 import neo.chat.persistence.entity.room.Room;
 import neo.chat.util.TestMemberRepository;
 import neo.chat.util.TestRoomRepository;
+import neo.chat.util.TestRoomSearchRepository;
+import neo.chat.util.TestRoomSearchSpecification;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @ActiveProfiles("test")
@@ -30,6 +40,8 @@ public class TestRoomRepositoryTest {
     TestRoomRepository testRoomRepository;
     @Autowired
     TestMemberRepository testMemberRepository;
+    @Autowired
+    TestRoomSearchRepository testRoomSearchRepository;
 
     @Nested
     @DisplayName("읽기 테스트")
@@ -145,6 +157,40 @@ public class TestRoomRepositoryTest {
                                     participant.getIsHost()
                             ))
                     );
+        }
+
+        @Test
+        @DisplayName("동적 쿼리: 채팅방 검색")
+        void specTestCase01() {
+            Room cursorRoom = testRoomRepository.findById(13L).get();
+            String cursorInstant = cursorRoom.getCreatedAt().toString();
+            SearchChatRoomRequest request = new SearchChatRoomRequest(
+                    false,
+                    Set.of("test", "title0"),
+                    20,
+                    //ChatRoomSortOption.DATE,
+                    ChatRoomSortOption.CAPACITY,
+                    //ChatRoomSortOption.DEFAULT,
+                    Sort.Direction.DESC,
+                    //Sort.Direction.ASC,
+                    //null
+                    //new RoomSearchCursor("13", cursorInstant)
+                    new RoomSearchCursor("13", "50")
+                    //new RoomSearchCursor("13", null)
+            );
+            List<Room> rooms = testRoomSearchRepository.searchRoom(
+                    TestRoomSearchSpecification.getSpecification(request),
+                    request.getPageable()
+            );
+            rooms.forEach(value -> log.info("\nid: " + value.getId() +
+                    "\ntitle: " + value.getTitle() +
+                    "\ncapacity: " + value.getCapacity() +
+                    "\nsaturation: " + value.getSaturation() +
+                    "\nattending: " + value.getAttending() +
+                    "\ncreatedAt: " + value.getCreatedAt()
+            ));
+            log.info("몇개? {}", rooms.size());
+            log.info("cursor instant: {}", cursorInstant);
         }
 
     }
