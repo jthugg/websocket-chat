@@ -1,6 +1,7 @@
 package neo.chat.persistence.entity.room;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
@@ -31,6 +32,8 @@ public class Room extends JpaEntity<Long> {
     private String password;
     private Integer capacity;
     private Integer attending;
+    @Column(columnDefinition = "FLOAT")
+    private Float saturation; // saturationValue = attendingValue / capacityValue
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = Participant.ROOM_COLUMN_NAME, cascade = CascadeType.ALL)
     private List<Participant> participants = new ArrayList<>();
@@ -42,6 +45,7 @@ public class Room extends JpaEntity<Long> {
         this.password = password;
         this.capacity = capacity;
         this.attending = 1;
+        this.saturation = ((float) attending) / ((float) capacity);
     }
 
 }
