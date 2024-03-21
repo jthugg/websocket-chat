@@ -32,8 +32,7 @@ public class Room extends JpaEntity<Long> {
     private String password;
     private Integer capacity;
     private Integer attending;
-    @Column(columnDefinition = "FLOAT")
-    private Float saturation; // saturationValue = attendingValue / capacityValue
+    private Integer saturation; // saturationValue = (100 * attendingValue) / capacityValue
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = Participant.ROOM_COLUMN_NAME, cascade = CascadeType.ALL)
     private List<Participant> participants = new ArrayList<>();
@@ -45,7 +44,7 @@ public class Room extends JpaEntity<Long> {
         this.password = password;
         this.capacity = capacity;
         this.attending = 1;
-        this.saturation = ((float) attending) / ((float) capacity);
+        this.saturation = (100 * attending) / capacity;
     }
 
 }

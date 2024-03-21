@@ -21,7 +21,7 @@ CREATE TABLE `Room` (
     password VARCHAR(255),
     capacity INTEGER NOT NULL,
     attending INTEGER NOT NULL,
-    saturation FLOAT NOT NULL,
+    saturation INTEGER NOT NULL,
     createdAt TIMESTAMP(3) NOT NULL,
     removedAt TIMESTAMP(3),
     PRIMARY KEY (id)
