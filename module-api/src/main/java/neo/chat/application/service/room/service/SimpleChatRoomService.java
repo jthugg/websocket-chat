@@ -2,15 +2,20 @@ package neo.chat.application.service.room.service;
 
 import lombok.RequiredArgsConstructor;
 import neo.chat.application.service.room.model.OpenChatRoomRequest;
+import neo.chat.application.service.room.model.SearchChatRoomRequest;
 import neo.chat.application.service.room.tx.ChatRoomTransactionScript;
 import neo.chat.application.util.EntityIdGenerator;
 import neo.chat.persistence.entity.member.Member;
 import neo.chat.persistence.entity.participant.Participant;
 import neo.chat.persistence.entity.room.Room;
+import neo.chat.persistence.repository.room.RoomSearchRepository;
 import neo.chat.settings.context.AuthMemberContextHolder;
+import org.springframework.data.domain.Slice;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -19,6 +24,7 @@ public class SimpleChatRoomService implements ChatRoomService {
 
     private final ChatRoomTransactionScript transactionScript;
     private final PasswordEncoder passwordEncoder;
+    private final RoomSearchRepository roomSearchRepository;
 
     @Override
     public Room openChatRoom(OpenChatRoomRequest request) {
@@ -41,6 +47,12 @@ public class SimpleChatRoomService implements ChatRoomService {
                 .nickname(Objects.requireNonNullElse(request.nickname(), member.getUsername()))
                 .build());
         return transactionScript.createRoom(room);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Room> searchChatRoom(SearchChatRoomRequest request) {
+        return roomSearchRepository.searchRoom(request);
     }
 
 }
