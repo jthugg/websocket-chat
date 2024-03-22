@@ -12,5 +12,6 @@ public interface ChatRoomService {
     Room openChatRoom(OpenChatRoomRequest request);
     List<Room> searchChatRoom(SearchChatRoomRequest request);
     List<Participant> getParticipatingRooms(Long cursorId, int fetchSize);
+    Room getRoomData(Long id);
 
 }

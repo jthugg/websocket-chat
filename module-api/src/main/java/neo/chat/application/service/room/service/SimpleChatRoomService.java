@@ -1,6 +1,7 @@
 package neo.chat.application.service.room.service;
 
 import lombok.RequiredArgsConstructor;
+import neo.chat.application.service.room.exception.RoomNotFoundException;
 import neo.chat.application.service.room.model.ChatRoomSortOption;
 import neo.chat.application.service.room.model.OpenChatRoomRequest;
 import neo.chat.application.service.room.model.SearchChatRoomRequest;
@@ -9,6 +10,7 @@ import neo.chat.application.util.EntityIdGenerator;
 import neo.chat.persistence.entity.member.Member;
 import neo.chat.persistence.entity.participant.Participant;
 import neo.chat.persistence.entity.room.Room;
+import neo.chat.persistence.repository.room.RoomRepository;
 import neo.chat.persistence.repository.room.RoomSearchRepository;
 import neo.chat.settings.context.AuthMemberContextHolder;
 import org.springframework.data.domain.PageRequest;
@@ -28,6 +30,7 @@ public class SimpleChatRoomService implements ChatRoomService {
     private final ChatRoomTransactionScript transactionScript;
     private final PasswordEncoder passwordEncoder;
     private final RoomSearchRepository roomSearchRepository;
+    private final RoomRepository roomRepository;
 
     @Override
     public Room openChatRoom(OpenChatRoomRequest request) {
@@ -72,6 +75,12 @@ public class SimpleChatRoomService implements ChatRoomService {
             return transactionScript.getParticipatingRooms(member, pageable);
         }
         return transactionScript.getParticipatingRooms(member, cursorId, pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Room getRoomData(Long id) {
+        return roomRepository.findByIdAndRemovedAtIsNull(id).orElseThrow(RoomNotFoundException::new);
     }
 
 }
