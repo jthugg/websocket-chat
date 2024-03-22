@@ -1,6 +1,7 @@
 package neo.chat.application.service.room.service;
 
 import lombok.RequiredArgsConstructor;
+import neo.chat.application.service.room.model.ChatRoomSortOption;
 import neo.chat.application.service.room.model.OpenChatRoomRequest;
 import neo.chat.application.service.room.model.SearchChatRoomRequest;
 import neo.chat.application.service.room.tx.ChatRoomTransactionScript;
@@ -10,7 +11,9 @@ import neo.chat.persistence.entity.participant.Participant;
 import neo.chat.persistence.entity.room.Room;
 import neo.chat.persistence.repository.room.RoomSearchRepository;
 import neo.chat.settings.context.AuthMemberContextHolder;
-import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,6 +56,22 @@ public class SimpleChatRoomService implements ChatRoomService {
     @Transactional(readOnly = true)
     public List<Room> searchChatRoom(SearchChatRoomRequest request) {
         return roomSearchRepository.searchRoom(request);
+    }
+
+    @Override
+    public List<Participant> getParticipatingRooms(Long cursorId, int fetchSize) {
+        Member member = AuthMemberContextHolder.get();
+        int defaultPageNumber = 0;
+        Pageable pageable = PageRequest.of(
+                defaultPageNumber,
+                fetchSize,
+                Sort.Direction.DESC,
+                ChatRoomSortOption.DEFAULT.getFieldName()
+        );
+        if (cursorId == null) {
+            return transactionScript.getParticipatingRooms(member, pageable);
+        }
+        return transactionScript.getParticipatingRooms(member, cursorId, pageable);
     }
 
 }
