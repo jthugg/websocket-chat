@@ -5,6 +5,7 @@ import neo.chat.application.service.room.model.ChatRoomSortOption;
 import neo.chat.persistence.entity.member.Member;
 import neo.chat.persistence.repository.member.MemberRepository;
 import neo.chat.persistence.repository.participant.ParticipantRepository;
+import neo.chat.persistence.repository.room.RoomRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -23,6 +24,8 @@ public class ParticipantRepositoryTest {
     ParticipantRepository participantRepository;
     @Autowired
     MemberRepository memberRepository;
+    @Autowired
+    RoomRepository roomRepository;
 
     @Test
     void testCase00() {
@@ -77,6 +80,12 @@ public class ParticipantRepositoryTest {
                 participant id: {}
                 room id: {}
                 """, value.getId(), value.getRoom().getId()));
+    }
+
+    @Test
+    void testCase03() {
+        Member member = memberRepository.findById(0L).get();
+        log.info("is exists: {}", participantRepository.existsByMemberAndRoomIdAndRemovedAtIsNull(member, 0L));
     }
 
 }
