@@ -1,8 +1,12 @@
 package neo.chat.application.service.room.service;
 
 import lombok.RequiredArgsConstructor;
+import neo.chat.application.service.room.exception.AlreadyEnteredRoomException;
+import neo.chat.application.service.room.exception.ChatRoomHasNoVacancyException;
+import neo.chat.application.service.room.exception.ChatRoomPasswordNotMatchedException;
 import neo.chat.application.service.room.exception.RoomNotFoundException;
 import neo.chat.application.service.room.model.ChatRoomSortOption;
+import neo.chat.application.service.room.model.EnterChatRoomRequest;
 import neo.chat.application.service.room.model.OpenChatRoomRequest;
 import neo.chat.application.service.room.model.SearchChatRoomRequest;
 import neo.chat.application.service.room.tx.ChatRoomTransactionScript;
@@ -10,6 +14,7 @@ import neo.chat.application.util.EntityIdGenerator;
 import neo.chat.persistence.entity.member.Member;
 import neo.chat.persistence.entity.participant.Participant;
 import neo.chat.persistence.entity.room.Room;
+import neo.chat.persistence.repository.participant.ParticipantRepository;
 import neo.chat.persistence.repository.room.RoomRepository;
 import neo.chat.persistence.repository.room.RoomSearchRepository;
 import neo.chat.settings.context.AuthMemberContextHolder;
@@ -31,6 +36,7 @@ public class SimpleChatRoomService implements ChatRoomService {
     private final PasswordEncoder passwordEncoder;
     private final RoomSearchRepository roomSearchRepository;
     private final RoomRepository roomRepository;
+    private final ParticipantRepository participantRepository;
 
     @Override
     public Room openChatRoom(OpenChatRoomRequest request) {
@@ -81,6 +87,35 @@ public class SimpleChatRoomService implements ChatRoomService {
     @Transactional(readOnly = true)
     public Room getRoomData(Long id) {
         return roomRepository.findByIdAndRemovedAtIsNull(id).orElseThrow(RoomNotFoundException::new);
+    }
+
+    @Override
+    @Transactional
+    public Room enterRoom(EnterChatRoomRequest request) {
+        Member member = AuthMemberContextHolder.get();
+        if (participantRepository.existsByMemberAndRoomIdAndRemovedAtIsNull(member, request.roomId())) {
+            throw new AlreadyEnteredRoomException();
+        }
+        Room room = roomRepository.findByIdJoinFetchParticipantsWithLock(request.roomId())
+                .orElseThrow(RoomNotFoundException::new);
+
+        if (room.isPublicRoom() || passwordEncoder.matches(request.password(), room.getPassword())) {
+            if (room.getAttending() >= room.getCapacity()) {
+                throw new ChatRoomHasNoVacancyException();
+            }
+            room.getParticipants().add(new Participant(
+                    EntityIdGenerator.PARTICIPANT.getIdGenerator().generate().toLong(),
+                    member,
+                    room,
+                    false,
+                    request.nickname()
+            ));
+            room.setAttending(room.getParticipants().size());
+            room.setSaturation();
+            return room;
+        }
+
+        throw new ChatRoomPasswordNotMatchedException();
     }
 
 }

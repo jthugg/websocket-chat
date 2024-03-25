@@ -27,4 +27,6 @@ public interface ParticipantRepository extends JpaRepository<Participant, Long> 
             " and participant.removedAt is null")
     List<Participant> findByMemberAndIdLessThanAndRemovedAtIsNull(Member member, Long cursorId, Pageable pageable);
 
+    boolean existsByMemberAndRoomIdAndRemovedAtIsNull(Member member, Long room);
+
 }

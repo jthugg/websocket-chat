@@ -1,7 +1,6 @@
 package neo.chat.persistence.entity.room;
 
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
@@ -11,6 +10,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import neo.chat.persistence.entity.participant.Participant;
 import neo.chat.persistence.entity.util.JpaEntity;
 
@@ -28,9 +28,13 @@ public class Room extends JpaEntity<Long> {
 
     @Id
     private Long id;
+    @Setter
     private String title;
+    @Setter
     private String password;
+    @Setter
     private Integer capacity;
+    @Setter
     private Integer attending;
     private Integer saturation; // saturationValue = (100 * attendingValue) / capacityValue
 
@@ -45,6 +49,18 @@ public class Room extends JpaEntity<Long> {
         this.capacity = capacity;
         this.attending = 1;
         this.saturation = (100 * attending) / capacity;
+    }
+
+    public boolean isPublicRoom() {
+        return password == null;
+    }
+
+    public boolean isFull() {
+        return capacity <= attending;
+    }
+
+    public void setSaturation() {
+        this.saturation = (100 * this.attending) / this.capacity;
     }
 
 }

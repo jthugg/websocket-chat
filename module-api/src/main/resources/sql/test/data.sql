@@ -101,6 +101,27 @@ INSERT INTO `Member` VALUES (96, 'test96', 'test96', 'ROLE_NORMAL', '2024-01-01 
 INSERT INTO `Member` VALUES (97, 'test97', 'test97', 'ROLE_NORMAL', '2024-01-01 00:00:00.000', null);
 INSERT INTO `Member` VALUES (98, 'test98', 'test98', 'ROLE_NORMAL', '2024-01-01 00:00:00.000', null);
 INSERT INTO `Member` VALUES (99, 'test99', 'test99', 'ROLE_NORMAL', '2024-01-01 00:00:00.000', now());
+INSERT INTO `Member` VALUES (100, 'test100', 'test100', 'ROLE_NORMAL', '2024-01-01 00:00:00.000', null);
+INSERT INTO `Member` VALUES (101, 'test101', 'test101', 'ROLE_NORMAL', '2024-01-01 00:00:00.000', null);
+INSERT INTO `Member` VALUES (102, 'test102', 'test102', 'ROLE_NORMAL', '2024-01-01 00:00:00.000', null);
+INSERT INTO `Member` VALUES (103, 'test103', 'test103', 'ROLE_NORMAL', '2024-01-01 00:00:00.000', null);
+INSERT INTO `Member` VALUES (104, 'test104', 'test104', 'ROLE_NORMAL', '2024-01-01 00:00:00.000', null);
+INSERT INTO `Member` VALUES (105, 'test105', 'test105', 'ROLE_NORMAL', '2024-01-01 00:00:00.000', null);
+INSERT INTO `Member` VALUES (106, 'test106', 'test106', 'ROLE_NORMAL', '2024-01-01 00:00:00.000', null);
+INSERT INTO `Member` VALUES (107, 'test107', 'test107', 'ROLE_NORMAL', '2024-01-01 00:00:00.000', null);
+INSERT INTO `Member` VALUES (108, 'test108', 'test108', 'ROLE_NORMAL', '2024-01-01 00:00:00.000', null);
+INSERT INTO `Member` VALUES (109, 'test109', 'test109', 'ROLE_NORMAL', '2024-01-01 00:00:00.000', null);
+INSERT INTO `Member` VALUES (110, 'test110', 'test110', 'ROLE_NORMAL', '2024-01-01 00:00:00.000', null);
+INSERT INTO `Member` VALUES (111, 'test111', 'test111', 'ROLE_NORMAL', '2024-01-01 00:00:00.000', null);
+INSERT INTO `Member` VALUES (112, 'test112', 'test112', 'ROLE_NORMAL', '2024-01-01 00:00:00.000', null);
+INSERT INTO `Member` VALUES (113, 'test113', 'test113', 'ROLE_NORMAL', '2024-01-01 00:00:00.000', null);
+INSERT INTO `Member` VALUES (114, 'test114', 'test114', 'ROLE_NORMAL', '2024-01-01 00:00:00.000', null);
+INSERT INTO `Member` VALUES (115, 'test115', 'test115', 'ROLE_NORMAL', '2024-01-01 00:00:00.000', null);
+INSERT INTO `Member` VALUES (116, 'test116', 'test116', 'ROLE_NORMAL', '2024-01-01 00:00:00.000', null);
+INSERT INTO `Member` VALUES (117, 'test117', 'test117', 'ROLE_NORMAL', '2024-01-01 00:00:00.000', null);
+INSERT INTO `Member` VALUES (118, 'test118', 'test118', 'ROLE_NORMAL', '2024-01-01 00:00:00.000', null);
+INSERT INTO `Member` VALUES (119, 'test119', 'test119', 'ROLE_NORMAL', '2024-01-01 00:00:00.000', null);
+INSERT INTO `Member` VALUES (120, 'test120', 'test120', 'ROLE_NORMAL', '2024-01-01 00:00:00.000', null);
 
 -- Room(id, title, password, capacity, attending, saturation, createdAt, removedAt)
 INSERT INTO `Room` VALUES (0, 'testTitle00', 'test', 3, 3, (300 / 3), '2024-01-02 00:00:00.000', null);
@@ -113,7 +134,7 @@ INSERT INTO `Room` VALUES (6, 'testTitle06', 'test', 2, 2, (200 / 2), '2024-01-0
 INSERT INTO `Room` VALUES (7, 'testTitle07', null, 12, 11, (1100 / 12), '2024-01-02 00:00:00.008', null);
 INSERT INTO `Room` VALUES (8, 'testTitle08', null, 19, 19, (1900 / 19), '2024-01-02 00:00:00.009', null);
 INSERT INTO `Room` VALUES (9, 'testTitle09', null, 100, 71, (7100 / 100), '2024-01-02 00:00:00.010', null);
-INSERT INTO `Room` VALUES (10, 'testTitle10', 'test', 30, 14, (1400 / 30), '2024-01-02 00:00:00.011', null);
+INSERT INTO `Room` VALUES (10, 'testTitle10', '$2a$10$VOnY.f.3MSjEUfstgT.XXOl8KisicZcyVjcHzkSxBcC2wBukBzOpS', 30, 14, (1400 / 30), '2024-01-02 00:00:00.011', null);
 INSERT INTO `Room` VALUES (11, 'testTitle11', null, 50, 0, 0, '2024-01-02 00:00:00.012', now());
 INSERT INTO `Room` VALUES (12, 'testTitle12', null, 50, 1, (100 / 50), '2024-01-02 00:00:00.013', null);
 INSERT INTO `Room` VALUES (13, 'testTitle13', null, 50, 1, (100 / 50), '2024-01-02 00:00:00.014', null);

@@ -1,5 +1,6 @@
 package neo.chat.application.service.room.service;
 
+import neo.chat.application.service.room.model.EnterChatRoomRequest;
 import neo.chat.application.service.room.model.OpenChatRoomRequest;
 import neo.chat.application.service.room.model.SearchChatRoomRequest;
 import neo.chat.persistence.entity.participant.Participant;
@@ -13,5 +14,6 @@ public interface ChatRoomService {
     List<Room> searchChatRoom(SearchChatRoomRequest request);
     List<Participant> getParticipatingRooms(Long cursorId, int fetchSize);
     Room getRoomData(Long id);
+    Room enterRoom(EnterChatRoomRequest request);
 
 }
