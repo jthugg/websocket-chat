@@ -3,6 +3,7 @@ package neo.chat.unit.room.test.service;
 import neo.chat.application.service.room.exception.AlreadyEnteredRoomException;
 import neo.chat.application.service.room.exception.ChatRoomHasNoVacancyException;
 import neo.chat.application.service.room.exception.ChatRoomPasswordNotMatchedException;
+import neo.chat.application.service.room.exception.RoomNotFoundException;
 import neo.chat.application.service.room.model.EnterChatRoomRequest;
 import neo.chat.application.service.room.model.OpenChatRoomRequest;
 import neo.chat.application.service.room.service.SimpleChatRoomService;
@@ -142,6 +143,26 @@ public class SimpleChatRoomServiceTest {
 
         Assertions.assertThrows(
                 AlreadyEnteredRoomException.class,
+                () -> simpleChatRoomService.enterRoom(request)
+        );
+    }
+
+    @Test
+    @DisplayName("채팅 방 입장 테스트: 실패 케이스 - 존재하지 않는 방")
+    void enterTestCase05() {
+        Member member = new Member(100L, "test", "test");
+        EnterChatRoomRequest request = new EnterChatRoomRequest(12L, "iam00", null);
+
+        AuthMemberContextHolder.set(member);
+        Mockito.when(participantRepository.existsByMemberAndRoomIdAndRemovedAtIsNull(
+                ArgumentMatchers.any(),
+                ArgumentMatchers.any()
+        )).thenReturn(false);
+        Mockito.when(roomRepository.findByIdJoinFetchParticipantsWithLock(ArgumentMatchers.anyLong()))
+                .thenThrow(RoomNotFoundException.class);
+
+        Assertions.assertThrows(
+                RoomNotFoundException.class,
                 () -> simpleChatRoomService.enterRoom(request)
         );
     }
