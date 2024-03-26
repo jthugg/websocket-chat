@@ -101,7 +101,6 @@ INSERT INTO `Member` VALUES (96, 'test96', 'test96', 'ROLE_NORMAL', '2024-01-01 
 INSERT INTO `Member` VALUES (97, 'test97', 'test97', 'ROLE_NORMAL', '2024-01-01 00:00:00.000', null);
 INSERT INTO `Member` VALUES (98, 'test98', 'test98', 'ROLE_NORMAL', '2024-01-01 00:00:00.000', null);
 INSERT INTO `Member` VALUES (99, 'test99', 'test99', 'ROLE_NORMAL', '2024-01-01 00:00:00.000', now());
-INSERT INTO `Member` VALUES (100, 'test100', 'test100', 'ROLE_NORMAL', '2024-01-01 00:00:00.000', null);
 INSERT INTO `Member` VALUES (101, 'test101', 'test101', 'ROLE_NORMAL', '2024-01-01 00:00:00.000', null);
 INSERT INTO `Member` VALUES (102, 'test102', 'test102', 'ROLE_NORMAL', '2024-01-01 00:00:00.000', null);
 INSERT INTO `Member` VALUES (103, 'test103', 'test103', 'ROLE_NORMAL', '2024-01-01 00:00:00.000', null);

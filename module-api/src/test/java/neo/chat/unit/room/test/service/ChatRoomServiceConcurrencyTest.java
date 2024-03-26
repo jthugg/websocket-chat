@@ -43,7 +43,7 @@ public class ChatRoomServiceConcurrencyTest {
         AtomicInteger successCount = new AtomicInteger(0);
         AtomicInteger failCount = new AtomicInteger(0);
 
-        for (long i = 100; i < 120; i++) {
+        for (long i = 101; i < 121; i++) {
             long id = i;
             callables.add(() -> {
                 try {
