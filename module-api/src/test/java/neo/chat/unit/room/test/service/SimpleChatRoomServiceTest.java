@@ -9,6 +9,7 @@ import neo.chat.application.service.room.model.OpenChatRoomRequest;
 import neo.chat.application.service.room.service.SimpleChatRoomService;
 import neo.chat.application.service.room.tx.ChatRoomTransactionScript;
 import neo.chat.persistence.entity.member.Member;
+import neo.chat.persistence.entity.participant.Participant;
 import neo.chat.persistence.entity.room.Room;
 import neo.chat.persistence.repository.participant.ParticipantRepository;
 import neo.chat.persistence.repository.room.RoomRepository;
@@ -71,10 +72,6 @@ public class SimpleChatRoomServiceTest {
                 .build();
 
         AuthMemberContextHolder.set(member);
-        Mockito.when(participantRepository.existsByMemberAndRoomIdAndRemovedAtIsNull(
-                ArgumentMatchers.any(),
-                ArgumentMatchers.any()
-        )).thenReturn(false);
         Mockito.when(roomRepository.findByIdJoinFetchParticipantsWithLock(ArgumentMatchers.anyLong()))
                 .thenReturn(Optional.of(room));
 
@@ -93,10 +90,6 @@ public class SimpleChatRoomServiceTest {
                 .build();
 
         AuthMemberContextHolder.set(member);
-        Mockito.when(participantRepository.existsByMemberAndRoomIdAndRemovedAtIsNull(
-                ArgumentMatchers.any(),
-                ArgumentMatchers.any()
-        )).thenReturn(false);
         Mockito.when(roomRepository.findByIdJoinFetchParticipantsWithLock(ArgumentMatchers.anyLong()))
                 .thenReturn(Optional.of(room));
 
@@ -116,10 +109,6 @@ public class SimpleChatRoomServiceTest {
                 .build();
 
         AuthMemberContextHolder.set(member);
-        Mockito.when(participantRepository.existsByMemberAndRoomIdAndRemovedAtIsNull(
-                ArgumentMatchers.any(),
-                ArgumentMatchers.any()
-        )).thenReturn(false);
         Mockito.when(roomRepository.findByIdJoinFetchParticipantsWithLock(ArgumentMatchers.anyLong()))
                 .thenReturn(Optional.of(room));
 
@@ -133,13 +122,23 @@ public class SimpleChatRoomServiceTest {
     @DisplayName("채팅 방 입장 테스트: 실패 케이스 - 이미 참여중인 방")
     void enterTestCase04() {
         Member member = new Member(100L, "test", "test");
+        Room room = Room.builder()
+                .id(12L)
+                .title("test")
+                .capacity(2)
+                .build();
+        room.getParticipants().add(Participant.builder()
+                .id(100L)
+                .isHost(false)
+                .member(member)
+                .room(room)
+                .nickname("test")
+                .build());
         EnterChatRoomRequest request = new EnterChatRoomRequest(12L, "iam00", null);
 
         AuthMemberContextHolder.set(member);
-        Mockito.when(participantRepository.existsByMemberAndRoomIdAndRemovedAtIsNull(
-                ArgumentMatchers.any(),
-                ArgumentMatchers.any()
-        )).thenReturn(true);
+        Mockito.when(roomRepository.findByIdJoinFetchParticipantsWithLock(ArgumentMatchers.anyLong()))
+                .thenReturn(Optional.of(room));
 
         Assertions.assertThrows(
                 AlreadyEnteredRoomException.class,
@@ -154,10 +153,6 @@ public class SimpleChatRoomServiceTest {
         EnterChatRoomRequest request = new EnterChatRoomRequest(12L, "iam00", null);
 
         AuthMemberContextHolder.set(member);
-        Mockito.when(participantRepository.existsByMemberAndRoomIdAndRemovedAtIsNull(
-                ArgumentMatchers.any(),
-                ArgumentMatchers.any()
-        )).thenReturn(false);
         Mockito.when(roomRepository.findByIdJoinFetchParticipantsWithLock(ArgumentMatchers.anyLong()))
                 .thenThrow(RoomNotFoundException.class);
 

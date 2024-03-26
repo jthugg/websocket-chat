@@ -82,10 +82,4 @@ public class ParticipantRepositoryTest {
                 """, value.getId(), value.getRoom().getId()));
     }
 
-    @Test
-    void testCase03() {
-        Member member = memberRepository.findById(0L).get();
-        log.info("is exists: {}", participantRepository.existsByMemberAndRoomIdAndRemovedAtIsNull(member, 0L));
-    }
-
 }

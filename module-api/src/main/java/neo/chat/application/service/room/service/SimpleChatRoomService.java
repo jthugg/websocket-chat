@@ -14,7 +14,6 @@ import neo.chat.application.util.EntityIdGenerator;
 import neo.chat.persistence.entity.member.Member;
 import neo.chat.persistence.entity.participant.Participant;
 import neo.chat.persistence.entity.room.Room;
-import neo.chat.persistence.repository.participant.ParticipantRepository;
 import neo.chat.persistence.repository.room.RoomRepository;
 import neo.chat.persistence.repository.room.RoomSearchRepository;
 import neo.chat.settings.context.AuthMemberContextHolder;
@@ -36,7 +35,6 @@ public class SimpleChatRoomService implements ChatRoomService {
     private final PasswordEncoder passwordEncoder;
     private final RoomSearchRepository roomSearchRepository;
     private final RoomRepository roomRepository;
-    private final ParticipantRepository participantRepository;
 
     @Override
     public Room openChatRoom(OpenChatRoomRequest request) {
@@ -93,11 +91,14 @@ public class SimpleChatRoomService implements ChatRoomService {
     @Transactional
     public Room enterRoom(EnterChatRoomRequest request) {
         Member member = AuthMemberContextHolder.get();
-        if (participantRepository.existsByMemberAndRoomIdAndRemovedAtIsNull(member, request.roomId())) {
-            throw new AlreadyEnteredRoomException();
-        }
         Room room = roomRepository.findByIdJoinFetchParticipantsWithLock(request.roomId())
                 .orElseThrow(RoomNotFoundException::new);
+
+        room.getParticipants().forEach(participant -> {
+            if (Objects.equals(participant.getMember().getId(), member.getId())) {
+                throw new AlreadyEnteredRoomException();
+            }
+        });
 
         if (room.isPublicRoom() || passwordEncoder.matches(request.password(), room.getPassword())) {
             if (room.getAttending() >= room.getCapacity()) {
