@@ -279,3 +279,5 @@ INSERT INTO `Participant` VALUES (134, 13, 13, 1, 'iam13', now(), null);
 INSERT INTO `Participant` VALUES (135, 14, 14, 1, 'iam14', now(), null);
 INSERT INTO `Participant` VALUES (136, 15, 15, 1, 'iam15', now(), null);
 INSERT INTO `Participant` VALUES (137, 16, 16, 1, 'iam16', now(), null);
+INSERT INTO `Participant` VALUES (138, 0, 10, 0, 'iam00', now(), now());
+INSERT INTO `Participant` VALUES (139, 1, 10, 0, 'iam01', now(), now());

@@ -39,4 +39,9 @@ public class RoomRepositoryTest {
         room.getParticipants().forEach(value -> log.info(value.getNickname()));
     }
 
+    @Test
+    void testCase02() {
+        roomRepository.findByIdJoinFetchParticipantsWithLock(10L);
+    }
+
 }
