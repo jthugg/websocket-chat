@@ -3,7 +3,9 @@ package neo.chat.unit.room.test.service;
 import neo.chat.application.service.room.exception.AlreadyEnteredRoomException;
 import neo.chat.application.service.room.exception.ChatRoomHasNoVacancyException;
 import neo.chat.application.service.room.exception.ChatRoomPasswordNotMatchedException;
+import neo.chat.application.service.room.exception.HostAuthorityRequiredException;
 import neo.chat.application.service.room.exception.HostNotReplacedException;
+import neo.chat.application.service.room.exception.ParticipantNotFountException;
 import neo.chat.application.service.room.exception.RoomNotFoundException;
 import neo.chat.application.service.room.model.EnterChatRoomRequest;
 import neo.chat.application.service.room.model.OpenChatRoomRequest;
@@ -26,6 +28,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -251,6 +254,149 @@ public class SimpleChatRoomServiceTest {
             }
         });
         Assertions.assertFalse(room.isRemoved());
+    }
+
+    @Test
+    @DisplayName("채팅 방 호스트 변경 테스트: 성공 케이스")
+    void hostChangeTestCase01() {
+        long hostMemberId = 100L;
+        long targetMemberId = 101L;
+        long roomId = 0L;
+        long hostId = 0L;
+        long targetId = 1L;
+        Member hostMember = new Member(hostMemberId, "test", "test");
+        Member targetMember = new Member(targetMemberId, "test", "test");
+        Room room = Room.builder()
+                .id(roomId)
+                .capacity(10)
+                .build();
+        Participant host = Participant.builder()
+                .id(hostId)
+                .member(hostMember)
+                .room(room)
+                .isHost(true)
+                .build();
+        Participant target = Participant.builder()
+                .id(targetId)
+                .member(targetMember)
+                .room(room)
+                .isHost(false)
+                .build();
+        room.getParticipants().addAll(List.of(host, target));
+
+        AuthMemberContextHolder.set(hostMember);
+        Mockito.when(roomRepository.findByIdJoinFetchParticipantsWithLock(ArgumentMatchers.anyLong()))
+                .thenReturn(Optional.of(room));
+
+        Assertions.assertDoesNotThrow(() -> simpleChatRoomService.changeHost(roomId, hostId, targetId));
+        Assertions.assertFalse(host.getIsHost());
+        Assertions.assertTrue(target.getIsHost());
+    }
+
+    @Test
+    @DisplayName("채팅 방 호스트 변경 테스트: 실패 케이스 - 호스트가 아닌 사람이 요청 한 경우")
+    void hostChangeTestCase02() {
+        long nonHostMemberId = 100L;
+        long targetMemberId = 101L;
+        long roomId = 0L;
+        long hostId = 0L;
+        long targetId = 1L;
+        Member hostMember = new Member(nonHostMemberId, "test", "test");
+        Member targetMember = new Member(targetMemberId, "test", "test");
+        Room room = Room.builder()
+                .id(roomId)
+                .capacity(10)
+                .build();
+        Participant NotAHost = Participant.builder()
+                .id(hostId)
+                .member(hostMember)
+                .room(room)
+                .isHost(false)
+                .build();
+        Participant target = Participant.builder()
+                .id(targetId)
+                .member(targetMember)
+                .room(room)
+                .isHost(false)
+                .build();
+        room.getParticipants().addAll(List.of(NotAHost, target));
+
+        AuthMemberContextHolder.set(hostMember);
+        Mockito.when(roomRepository.findByIdJoinFetchParticipantsWithLock(ArgumentMatchers.anyLong()))
+                .thenReturn(Optional.of(room));
+
+        Assertions.assertThrows(
+                HostAuthorityRequiredException.class,
+                () -> simpleChatRoomService.changeHost(roomId, hostId, targetId)
+        );
+    }
+
+    @Test
+    @DisplayName("채팅 방 호스트 변경 테스트: 실패 케이스 - 채팅 방을 찾을 수 없는 경우")
+    void hostChangeTestCase03() {
+        long hostMemberId = 100L;
+        long targetMemberId = 101L;
+        long roomId = 0L;
+        long hostId = 0L;
+        long targetId = 1L;
+        Member hostMember = new Member(hostMemberId, "test", "test");
+        Member targetMember = new Member(targetMemberId, "test", "test");
+        Room room = Room.builder()
+                .id(roomId)
+                .capacity(10)
+                .build();
+        Participant host = Participant.builder()
+                .id(hostId)
+                .member(hostMember)
+                .room(room)
+                .isHost(true)
+                .build();
+        Participant target = Participant.builder()
+                .id(targetId)
+                .member(targetMember)
+                .room(room)
+                .isHost(false)
+                .build();
+        room.getParticipants().addAll(List.of(host, target));
+
+        AuthMemberContextHolder.set(hostMember);
+        Mockito.when(roomRepository.findByIdJoinFetchParticipantsWithLock(ArgumentMatchers.anyLong()))
+                .thenThrow(RoomNotFoundException.class);
+
+        Assertions.assertThrows(
+                RoomNotFoundException.class,
+                () -> simpleChatRoomService.changeHost(roomId, hostId, targetId)
+        );
+    }
+
+    @Test
+    @DisplayName("채팅 방 호스트 변경 테스트: 실패 케이스 - 변경하려는 참여자가 없는 경우")
+    void hostChangeTestCase04() {
+        long hostMemberId = 100L;
+        long roomId = 0L;
+        long hostId = 0L;
+        long targetId = 1L;
+        Member hostMember = new Member(hostMemberId, "test", "test");
+        Room room = Room.builder()
+                .id(roomId)
+                .capacity(10)
+                .build();
+        Participant host = Participant.builder()
+                .id(hostId)
+                .member(hostMember)
+                .room(room)
+                .isHost(true)
+                .build();
+        room.getParticipants().add(host);
+
+        AuthMemberContextHolder.set(hostMember);
+        Mockito.when(roomRepository.findByIdJoinFetchParticipantsWithLock(ArgumentMatchers.anyLong()))
+                .thenReturn(Optional.of(room));
+
+        Assertions.assertThrows(
+                ParticipantNotFountException.class,
+                () -> simpleChatRoomService.changeHost(roomId, hostId, targetId)
+        );
     }
 
 }
