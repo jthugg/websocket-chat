@@ -3,6 +3,7 @@ package neo.chat.unit.room.test.service;
 import neo.chat.application.service.room.exception.AlreadyEnteredRoomException;
 import neo.chat.application.service.room.exception.ChatRoomHasNoVacancyException;
 import neo.chat.application.service.room.exception.ChatRoomPasswordNotMatchedException;
+import neo.chat.application.service.room.exception.HostNotReplacedException;
 import neo.chat.application.service.room.exception.RoomNotFoundException;
 import neo.chat.application.service.room.model.EnterChatRoomRequest;
 import neo.chat.application.service.room.model.OpenChatRoomRequest;
@@ -11,7 +12,6 @@ import neo.chat.application.service.room.tx.ChatRoomTransactionScript;
 import neo.chat.persistence.entity.member.Member;
 import neo.chat.persistence.entity.participant.Participant;
 import neo.chat.persistence.entity.room.Room;
-import neo.chat.persistence.repository.participant.ParticipantRepository;
 import neo.chat.persistence.repository.room.RoomRepository;
 import neo.chat.settings.context.AuthMemberContextHolder;
 import org.junit.jupiter.api.Assertions;
@@ -26,6 +26,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,8 +37,6 @@ public class SimpleChatRoomServiceTest {
     ChatRoomTransactionScript chatRoomTransactionScript;
     @Spy
     PasswordEncoder passwordEncoder;
-    @Mock
-    ParticipantRepository participantRepository;
     @Mock
     RoomRepository roomRepository;
     @InjectMocks
@@ -160,6 +159,98 @@ public class SimpleChatRoomServiceTest {
                 RoomNotFoundException.class,
                 () -> simpleChatRoomService.enterRoom(request)
         );
+    }
+
+    @Test
+    @DisplayName("채팅 방 퇴장 테스트: 성공 케이스 - 채팅 방 참여자")
+    void leaveTestCase01() {
+        Member member = new Member(100L, "test", "test");
+        AuthMemberContextHolder.set(member);
+        Room room = Room.builder()
+                .id(12L)
+                .title("testTitle12")
+                .capacity(2)
+                .build();
+        room.getParticipants().add(Participant.builder()
+                .id(100L)
+                .room(room)
+                .member(member)
+                .isHost(false)
+                .nickname("iam100")
+                .build());
+
+        Mockito.when(roomRepository.findByIdJoinFetchParticipantsWithLock(ArgumentMatchers.anyLong()))
+                .thenReturn(Optional.of(room));
+
+        Assertions.assertDoesNotThrow(() -> simpleChatRoomService.leaveRoom(12L));
+        room.getParticipants().forEach(value -> {
+            if (Objects.equals(value.getId(), member.getId())) {
+                Assertions.assertTrue(value.isRemoved());
+            }
+        });
+        Assertions.assertFalse(room.isRemoved());
+    }
+
+    @Test
+    @DisplayName("채팅 방 퇴장 테스트: 성공 케이스 - 채팅 방 호스트")
+    void leaveTestCase02() {
+        Member member = new Member(100L, "test", "test");
+        AuthMemberContextHolder.set(member);
+        Room room = Room.builder()
+                .id(12L)
+                .title("testTitle12")
+                .capacity(2)
+                .build();
+        room.getParticipants().add(Participant.builder()
+                .id(100L)
+                .room(room)
+                .member(member)
+                .isHost(true)
+                .nickname("iam100")
+                .build());
+
+        Mockito.when(roomRepository.findByIdJoinFetchParticipantsWithLock(ArgumentMatchers.anyLong()))
+                .thenReturn(Optional.of(room));
+
+        Assertions.assertDoesNotThrow(() -> simpleChatRoomService.leaveRoom(12L));
+        room.getParticipants().forEach(value -> {
+            if (Objects.equals(value.getId(), member.getId())) {
+                Assertions.assertTrue(value.isRemoved());
+            }
+        });
+        Assertions.assertTrue(room.isRemoved());
+    }
+
+    @Test
+    @DisplayName("채팅 방 퇴장 테스트: 실패 케이스 - 다른 참여자가 있을 때 호스트가 퇴장하려는 경우")
+    void leaveTestCase03() {
+        Member member = new Member(100L, "test", "test");
+        AuthMemberContextHolder.set(member);
+        Room room = Room.builder()
+                .id(12L)
+                .title("testTitle12")
+                .capacity(2)
+                .build();
+        room.getParticipants().add(Participant.builder()
+                .id(100L)
+                .room(room)
+                .member(member)
+                .isHost(true)
+                .nickname("iam100")
+                .build());
+        room.setAttending(2);
+        room.setSaturation();
+
+        Mockito.when(roomRepository.findByIdJoinFetchParticipantsWithLock(ArgumentMatchers.anyLong()))
+                .thenReturn(Optional.of(room));
+
+        Assertions.assertThrows(HostNotReplacedException.class, () -> simpleChatRoomService.leaveRoom(12L));
+        room.getParticipants().forEach(value -> {
+            if (Objects.equals(value.getId(), member.getId())) {
+                Assertions.assertFalse(value.isRemoved());
+            }
+        });
+        Assertions.assertFalse(room.isRemoved());
     }
 
 }
