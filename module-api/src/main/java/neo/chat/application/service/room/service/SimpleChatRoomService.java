@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import neo.chat.application.service.room.exception.AlreadyEnteredRoomException;
 import neo.chat.application.service.room.exception.ChatRoomHasNoVacancyException;
 import neo.chat.application.service.room.exception.ChatRoomPasswordNotMatchedException;
+import neo.chat.application.service.room.exception.HostNotReplacedException;
 import neo.chat.application.service.room.exception.RoomNotFoundException;
 import neo.chat.application.service.room.model.ChatRoomSortOption;
 import neo.chat.application.service.room.model.EnterChatRoomRequest;
@@ -117,6 +118,31 @@ public class SimpleChatRoomService implements ChatRoomService {
         }
 
         throw new ChatRoomPasswordNotMatchedException();
+    }
+
+    @Override
+    @Transactional
+    public void leaveRoom(Long id) {
+        Room room = roomRepository.findByIdJoinFetchParticipantsWithLock(id).orElseThrow(RoomNotFoundException::new);
+        Member member = AuthMemberContextHolder.get();
+        room.getParticipants().forEach(participant -> {
+            if (!Objects.equals(participant.getMember().getId(), member.getId())) {
+                return;
+            }
+            if (!participant.getIsHost()) {
+                participant.remove();
+                room.setAttending(room.getAttending() - 1);
+                room.setSaturation();
+                return;
+            }
+            if (room.getAttending() > 1) {
+                throw new HostNotReplacedException();
+            }
+            participant.remove();
+            room.setAttending(0);
+            room.setSaturation();
+            room.remove();
+        });
     }
 
 }
