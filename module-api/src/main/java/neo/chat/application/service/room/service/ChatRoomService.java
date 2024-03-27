@@ -16,6 +16,6 @@ public interface ChatRoomService {
     Room getRoomData(Long id);
     Room enterRoom(EnterChatRoomRequest request);
     void leaveRoom(Long id);
-
+    List<Participant> changeHost(Long roomId, Long myParticipantId, Long targetParticipantId);
 
 }

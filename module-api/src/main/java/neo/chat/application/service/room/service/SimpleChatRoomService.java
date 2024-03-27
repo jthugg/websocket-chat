@@ -4,7 +4,9 @@ import lombok.RequiredArgsConstructor;
 import neo.chat.application.service.room.exception.AlreadyEnteredRoomException;
 import neo.chat.application.service.room.exception.ChatRoomHasNoVacancyException;
 import neo.chat.application.service.room.exception.ChatRoomPasswordNotMatchedException;
+import neo.chat.application.service.room.exception.HostAuthorityRequiredException;
 import neo.chat.application.service.room.exception.HostNotReplacedException;
+import neo.chat.application.service.room.exception.ParticipantNotFountException;
 import neo.chat.application.service.room.exception.RoomNotFoundException;
 import neo.chat.application.service.room.model.ChatRoomSortOption;
 import neo.chat.application.service.room.model.EnterChatRoomRequest;
@@ -143,6 +145,35 @@ public class SimpleChatRoomService implements ChatRoomService {
             room.setSaturation();
             room.remove();
         });
+    }
+
+    @Override
+    @Transactional
+    public List<Participant> changeHost(Long roomId, Long myParticipantId, Long targetParticipantId) {
+        Room room = roomRepository.findByIdJoinFetchParticipantsWithLock(roomId)
+                .orElseThrow(RoomNotFoundException::new);
+        Member requester = AuthMemberContextHolder.get();
+        Participant host = null;
+        Participant target = null;
+        for (Participant participant : room.getParticipants()) {
+            if (host != null && target != null) {
+                break;
+            }
+            if (participant.getIsHost() && Objects.equals(participant.getMember().getId(), requester.getId())) {
+                host = participant;
+            }
+            if (Objects.equals(participant.getId(), targetParticipantId)) {
+                target = participant;
+            }
+        }
+        if (host == null) {
+            throw new HostAuthorityRequiredException();
+        }
+        if (target == null) {
+            throw new ParticipantNotFountException();
+        }
+        host.changeHost(target);
+        return room.getParticipants();
     }
 
 }

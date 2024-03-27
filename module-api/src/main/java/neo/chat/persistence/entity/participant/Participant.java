@@ -46,4 +46,9 @@ public class Participant extends JpaEntity<Long> {
         this.nickname = nickname;
     }
 
+    public void changeHost(Participant target) {
+        this.isHost = false;
+        target.isHost = true;
+    }
+
 }
