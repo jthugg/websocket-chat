@@ -7,6 +7,7 @@ import neo.chat.application.service.room.exception.HostAuthorityRequiredExceptio
 import neo.chat.application.service.room.exception.HostNotReplacedException;
 import neo.chat.application.service.room.exception.ParticipantNotFountException;
 import neo.chat.application.service.room.exception.RoomNotFoundException;
+import neo.chat.application.service.room.model.ChangeChatRoomInfoRequest;
 import neo.chat.application.service.room.model.EnterChatRoomRequest;
 import neo.chat.application.service.room.model.OpenChatRoomRequest;
 import neo.chat.application.service.room.service.SimpleChatRoomService;
@@ -17,6 +18,7 @@ import neo.chat.persistence.entity.room.Room;
 import neo.chat.persistence.repository.room.RoomRepository;
 import neo.chat.settings.context.AuthMemberContextHolder;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,6 +46,11 @@ public class SimpleChatRoomServiceTest {
     RoomRepository roomRepository;
     @InjectMocks
     SimpleChatRoomService simpleChatRoomService;
+
+    @BeforeEach
+    void setup() {
+        AuthMemberContextHolder.set(null);
+    }
 
     @Test
     @DisplayName("채팅 방 생성 테스트: 성공 케이스")
@@ -397,6 +404,80 @@ public class SimpleChatRoomServiceTest {
                 ParticipantNotFountException.class,
                 () -> simpleChatRoomService.changeHost(roomId, hostId, targetId)
         );
+    }
+
+    @Test
+    @DisplayName("채팅 방 정보 변경 테스트: 성공 케이스")
+    void chatRoomDataModifyTest01() {
+        Member member = new Member(100L, "test", "test");
+        ChangeChatRoomInfoRequest request
+                = new ChangeChatRoomInfoRequest(0L, "after", "after", 3);
+        Room before = Room.builder()
+                .title("before")
+                .password("before")
+                .capacity(2)
+                .build();
+
+        AuthMemberContextHolder.set(member);
+        Mockito.when(roomRepository.findRoomDataWithLockForUpdate(
+                ArgumentMatchers.anyLong(),
+                ArgumentMatchers.anyLong()
+        )).thenReturn(Optional.ofNullable(before));
+
+        Assertions.assertDoesNotThrow(() -> {
+            Room proccessedRoom = simpleChatRoomService.changeRoomInfo(request);
+            Assertions.assertEquals(proccessedRoom.getTitle(), "after");
+            Assertions.assertEquals(proccessedRoom.getPassword(), "after");
+            Assertions.assertEquals(proccessedRoom.getCapacity(), 3);
+        });
+    }
+
+    @Test
+    @DisplayName("채팅 방 정보 변경 테스트: 실패 케이스 - 호스트가 아닌 사람이 변경하는 경우")
+    void chatRoomDataModifyTest02() {
+        Member member = new Member(100L, "test", "test");
+        ChangeChatRoomInfoRequest request
+                = new ChangeChatRoomInfoRequest(0L, "after", "after", 3);
+
+        AuthMemberContextHolder.set(member);
+        Mockito.when(roomRepository.findRoomDataWithLockForUpdate(
+                ArgumentMatchers.anyLong(),
+                ArgumentMatchers.anyLong()
+        )).thenThrow(RoomNotFoundException.class);
+
+        Assertions.assertThrows(RoomNotFoundException.class, () -> simpleChatRoomService.changeRoomInfo(request));
+    }
+
+    @Test
+    @DisplayName("채팅 방 정보 변경 테스트: 실패 케이스 - 채팅 방이 없는 경우")
+    void chatRoomDataModifyTest03() {
+        Member member = new Member(100L, "test", "test");
+        ChangeChatRoomInfoRequest request
+                = new ChangeChatRoomInfoRequest(0L, "after", "after", 3);
+
+        AuthMemberContextHolder.set(member);
+        Mockito.when(roomRepository.findRoomDataWithLockForUpdate(
+                ArgumentMatchers.anyLong(),
+                ArgumentMatchers.anyLong()
+        )).thenThrow(RoomNotFoundException.class);
+
+        Assertions.assertThrows(RoomNotFoundException.class, () -> simpleChatRoomService.changeRoomInfo(request));
+    }
+
+    @Test
+    @DisplayName("채팅 방 정보 변경 테스트: 실패 케이스 - 채팅 방 참여자가 아닌 경우")
+    void chatRoomDataModifyTest04() {
+        Member member = new Member(100L, "test", "test");
+        ChangeChatRoomInfoRequest request
+                = new ChangeChatRoomInfoRequest(0L, "after", "after", 3);
+
+        AuthMemberContextHolder.set(member);
+        Mockito.when(roomRepository.findRoomDataWithLockForUpdate(
+                ArgumentMatchers.anyLong(),
+                ArgumentMatchers.anyLong()
+        )).thenThrow(RoomNotFoundException.class);
+
+        Assertions.assertThrows(RoomNotFoundException.class, () -> simpleChatRoomService.changeRoomInfo(request));
     }
 
 }

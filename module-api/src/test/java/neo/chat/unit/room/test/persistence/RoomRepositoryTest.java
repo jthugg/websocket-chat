@@ -3,6 +3,7 @@ package neo.chat.unit.room.test.persistence;
 import lombok.extern.slf4j.Slf4j;
 import neo.chat.persistence.entity.room.Room;
 import neo.chat.persistence.repository.room.RoomRepository;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -42,6 +43,16 @@ public class RoomRepositoryTest {
     @Test
     void testCase02() {
         roomRepository.findByIdJoinFetchParticipantsWithLock(10L);
+    }
+
+    @Test
+    void testCase03() {
+        roomRepository.findRoomDataWithLockForUpdate(0L, 0L).get();
+    }
+
+    @Test
+    void testCase04() {
+        Assertions.assertTrue(roomRepository.findRoomDataWithLockForUpdate(0L, 1L).isEmpty());
     }
 
 }
