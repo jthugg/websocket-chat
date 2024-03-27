@@ -60,7 +60,8 @@ public class Room extends JpaEntity<Long> {
     }
 
     public void setSaturation() {
-        this.saturation = (100 * this.attending) / this.capacity;
+
+        this.saturation = Math.min(100, (100 * this.attending) / this.capacity);;
     }
 
 }

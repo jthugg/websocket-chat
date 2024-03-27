@@ -1,5 +1,6 @@
 package neo.chat.application.service.room.service;
 
+import neo.chat.application.service.room.model.ChangeChatRoomInfoRequest;
 import neo.chat.application.service.room.model.EnterChatRoomRequest;
 import neo.chat.application.service.room.model.OpenChatRoomRequest;
 import neo.chat.application.service.room.model.SearchChatRoomRequest;
@@ -17,5 +18,6 @@ public interface ChatRoomService {
     Room enterRoom(EnterChatRoomRequest request);
     void leaveRoom(Long id);
     List<Participant> changeHost(Long roomId, Long myParticipantId, Long targetParticipantId);
+    Room changeRoomInfo(ChangeChatRoomInfoRequest request);
 
 }

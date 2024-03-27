@@ -23,4 +23,17 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<Room> findByIdJoinFetchParticipantsWithLock(Long id);
 
+    @Query("select room" +
+            " from Room room" +
+            " join fetch room.participants participant" +
+            " join fetch participant.member member" +
+            " where room.id = :roomId" +
+                " and room.removedAt is null" +
+                " and CAST(participant.isHost as boolean) = true" +
+                " and participant.removedAt is null" +
+                " and member.id = :memberId" +
+                " and member.removedAt is null")
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    Optional<Room> findRoomDataWithLockForUpdate(Long roomId, Long memberId);
+
 }

@@ -8,6 +8,7 @@ import neo.chat.application.service.room.exception.HostAuthorityRequiredExceptio
 import neo.chat.application.service.room.exception.HostNotReplacedException;
 import neo.chat.application.service.room.exception.ParticipantNotFountException;
 import neo.chat.application.service.room.exception.RoomNotFoundException;
+import neo.chat.application.service.room.model.ChangeChatRoomInfoRequest;
 import neo.chat.application.service.room.model.ChatRoomSortOption;
 import neo.chat.application.service.room.model.EnterChatRoomRequest;
 import neo.chat.application.service.room.model.OpenChatRoomRequest;
@@ -174,6 +175,19 @@ public class SimpleChatRoomService implements ChatRoomService {
         }
         host.changeHost(target);
         return room.getParticipants();
+    }
+
+    @Override
+    @Transactional
+    public Room changeRoomInfo(ChangeChatRoomInfoRequest request) {
+        Member member = AuthMemberContextHolder.get();
+        Room room = roomRepository.findRoomDataWithLockForUpdate(request.id(), member.getId())
+                .orElseThrow(RoomNotFoundException::new);
+        room.setTitle(request.title());
+        room.setPassword(request.password());
+        room.setCapacity(request.capacity());
+        room.setSaturation();
+        return room;
     }
 
 }
