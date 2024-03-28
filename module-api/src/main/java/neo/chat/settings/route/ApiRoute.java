@@ -17,6 +17,8 @@ public class ApiRoute {
     public static final String AUTH_LOGOUT = "/auth/logout";
     public static final String AUTH_WITHDRAW = "/auth/withdraw";
 
+    public static final String OPEN_CHAT_ROOM = "/room";
+
     public static final AntPathRequestMatcher[] PERMIT_ALL = {
             new AntPathRequestMatcher(PING_PERMIT_ALL, HttpMethod.GET.name()),
             new AntPathRequestMatcher(AUTH_REISSUE, HttpMethod.POST.name()),
@@ -30,7 +32,8 @@ public class ApiRoute {
     public static final AntPathRequestMatcher[] AUTHENTICATED = {
             new AntPathRequestMatcher(PING_AUTHENTICATED, HttpMethod.GET.name()),
             new AntPathRequestMatcher(AUTH_LOGOUT, HttpMethod.POST.name()),
-            new AntPathRequestMatcher(AUTH_WITHDRAW, HttpMethod.DELETE.name())
+            new AntPathRequestMatcher(AUTH_WITHDRAW, HttpMethod.DELETE.name()),
+            new AntPathRequestMatcher(OPEN_CHAT_ROOM, HttpMethod.POST.name())
     };
 
 }
